@@ -918,7 +918,7 @@ async function callClaudeCli(systemPrompt, userPrompt) {
   const invoke = window.__TAURI__?.core?.invoke || window.__TAURI_INTERNALS__?.invoke;
   if (!invoke) throw new Error('Tauri no disponible');
   const combined = systemPrompt
-    ? `<system>\n${systemPrompt}\n</system>\n\n${userPrompt}`
+    ? `${systemPrompt}\n\n${userPrompt}`
     : userPrompt;
   try {
     return await invoke('claude_cli_generate', { prompt: combined });
