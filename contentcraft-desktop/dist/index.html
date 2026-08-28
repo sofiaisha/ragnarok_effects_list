@@ -1068,10 +1068,12 @@ async function execSearch(query) {
 async function doResearch(topic, days, direction, lang, brandCtx) {
   const dirText = direction === 'past' ? `los últimos ${days} días` : `los próximos ${days} días`;
   const today = new Date().toLocaleDateString('es-ES', { year:'numeric', month:'long', day:'numeric' });
-  const system = `Eres un investigador y analista de contenido experto. La fecha de hoy es ${today}.${brandCtx ? '\n\n' + brandCtx : ''} Proporciona información estructurada, concreta y útil para crear contenido de alto impacto. IMPORTANTE: Responde DIRECTAMENTE con la investigación — nunca pidas permiso para usar herramientas de búsqueda ni confirmes nada. Usa tu conocimiento de entrenamiento.`;
+  const system = `Eres un investigador y analista de contenido experto. La fecha de hoy es ${today}.${brandCtx ? '\n\n' + brandCtx : ''} Proporciona información estructurada, concreta y útil para crear contenido de alto impacto. Tu respuesta DEBE empezar directamente con "## RESUMEN EJECUTIVO" — sin introducción, sin disclaimers, sin mencionar herramientas ni permisos.`;
   const prompt = `Investiga el siguiente tema para crear contenido: "${topic}"
 
 Enfoque: ${direction === 'past' ? `¿Qué ha pasado en ${dirText}?` : `¿Qué está previsto o pasará en ${dirText}?`}
+
+Responde SOLO con las secciones siguientes, empezando exactamente con "## RESUMEN EJECUTIVO":
 
 ## RESUMEN EJECUTIVO
 2-3 oraciones clave.
@@ -1098,7 +1100,7 @@ Idioma: ${lang}`;
 
   // If Claude Code CLI is available (no API key needed), use it directly
   if (_claudeCliFound && !getKey()) {
-    return callClaudeCli(system, prompt);
+    return callClaudeCli(system, prompt).then(trimResearchPreamble);
   }
   return runWithTools([{ role: 'user', content: prompt }], [{
     name: 'web_search',
@@ -1178,6 +1180,12 @@ function switchTab(active, platforms) {
   });
 }
 function escHtml(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+// Strip any disclaimer/preamble Claude outputs before the first structured section
+function trimResearchPreamble(text) {
+  const idx = text.search(/^## /m);
+  return idx > 0 ? text.slice(idx).trim() : text.trim();
+}
 
 function setStep(id, state, detail) {
   const step = document.getElementById(`s-${id}`);
