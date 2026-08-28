@@ -1068,11 +1068,23 @@ async function execSearch(query) {
 async function doResearch(topic, days, direction, lang, brandCtx) {
   const dirText = direction === 'past' ? `los últimos ${days} días` : `los próximos ${days} días`;
   const today = new Date().toLocaleDateString('es-ES', { year:'numeric', month:'long', day:'numeric' });
+
+  // Pre-fetch web results with Serper when key is available — works with CLI or API
+  const serperKey = document.getElementById('serper-in').value.trim()
+    || localStorage.getItem(LS.SERPER) || '';
+  let webResults = '';
+  if (serperKey) {
+    const q1 = `${topic} ${direction === 'past' ? 'news últimas noticias' : 'próximos eventos lanzamientos'} ${days} días`;
+    const q2 = `${topic} tendencias 2026`;
+    const [r1, r2] = await Promise.all([execSearch(q1), execSearch(q2)]);
+    webResults = [r1, r2].filter(Boolean).join('\n\n');
+  }
+
   const system = `Eres un investigador y analista de contenido experto. La fecha de hoy es ${today}.${brandCtx ? '\n\n' + brandCtx : ''} Proporciona información estructurada, concreta y útil para crear contenido de alto impacto. Tu respuesta DEBE empezar directamente con "## RESUMEN EJECUTIVO" — sin introducción, sin disclaimers, sin mencionar herramientas ni permisos.`;
+
   const prompt = `Investiga el siguiente tema para crear contenido: "${topic}"
-
 Enfoque: ${direction === 'past' ? `¿Qué ha pasado en ${dirText}?` : `¿Qué está previsto o pasará en ${dirText}?`}
-
+${webResults ? `\n## DATOS WEB EN TIEMPO REAL (úsalos como fuente principal):\n${webResults}\n` : ''}
 Responde SOLO con las secciones siguientes, empezando exactamente con "## RESUMEN EJECUTIVO":
 
 ## RESUMEN EJECUTIVO
@@ -1098,9 +1110,13 @@ Quiénes son los interesados y qué les mueve.
 
 Idioma: ${lang}`;
 
-  // If Claude Code CLI is available (no API key needed), use it directly
   if (_claudeCliFound && !getKey()) {
     return callClaudeCli(system, prompt).then(trimResearchPreamble);
+  }
+  // API path — only use web_search tool when no Serper key (already pre-fetched above)
+  if (serperKey) {
+    const resp = await callClaude({ messages: [{ role: 'user', content: prompt }], system });
+    return trimResearchPreamble(extractText(resp));
   }
   return runWithTools([{ role: 'user', content: prompt }], [{
     name: 'web_search',
