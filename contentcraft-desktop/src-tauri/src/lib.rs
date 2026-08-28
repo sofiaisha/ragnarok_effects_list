@@ -89,79 +89,71 @@ pub struct ClaudeCliStatus {
     pub version: Option<String>,
 }
 
-/// Locate the `claude` executable using `where` (Windows) or `which` (Unix).
-/// Returns the full path, e.g. C:\Users\...\AppData\Roaming\npm\claude.cmd
-fn find_claude() -> Option<String> {
-    #[cfg(target_os = "windows")]
-    {
-        // `where claude` searches PATH + PATHEXT (finds .cmd shims)
-        if let Ok(out) = Command::new("where").arg("claude").output() {
-            if out.status.success() {
-                let s = String::from_utf8_lossy(&out.stdout);
-                if let Some(line) = s.lines().next() {
-                    let p = line.trim().to_string();
-                    if !p.is_empty() { return Some(p); }
-                }
-            }
-        }
-        // Fallback: known npm global install location
-        if let Ok(appdata) = std::env::var("APPDATA") {
-            let p = format!(r"{appdata}\npm\claude.cmd");
-            if std::path::Path::new(&p).exists() { return Some(p); }
-        }
-        if let Ok(profile) = std::env::var("USERPROFILE") {
-            let p = format!(r"{profile}\AppData\Roaming\npm\claude.cmd");
-            if std::path::Path::new(&p).exists() { return Some(p); }
-        }
-        None
+// On Unix/Mac, locate `claude` via `which` so we can invoke it directly.
+#[cfg(not(target_os = "windows"))]
+fn find_claude_unix() -> Option<String> {
+    let out = Command::new("which").arg("claude").output().ok()?;
+    if out.status.success() {
+        let p = String::from_utf8_lossy(&out.stdout).trim().to_string();
+        if !p.is_empty() { return Some(p); }
     }
-    #[cfg(not(target_os = "windows"))]
-    {
-        if let Ok(out) = Command::new("which").arg("claude").output() {
-            if out.status.success() {
-                let s = String::from_utf8_lossy(&out.stdout);
-                let p = s.trim().to_string();
-                if !p.is_empty() { return Some(p); }
-            }
-        }
+    None
+}
+
+// On Windows, test reachability by running `cmd /C claude --version`.
+// cmd.exe re-reads the user-level PATH from the registry on launch, so it finds
+// npm global shims (claude.cmd) even when the parent GUI process didn't inherit them.
+#[cfg(target_os = "windows")]
+fn probe_claude_windows() -> Option<String> {
+    let out = Command::new("cmd")
+        .args(["/C", "claude", "--version"])
+        .output().ok()?;
+    if out.status.success() {
+        let v = String::from_utf8_lossy(&out.stdout).trim().to_string();
+        Some(if v.is_empty() { "unknown".to_string() } else { v })
+    } else {
         None
     }
 }
 
 #[tauri::command]
 fn detect_claude_cli() -> ClaudeCliStatus {
-    let Some(path) = find_claude() else {
-        return ClaudeCliStatus { found: false, version: None };
-    };
-    // Try to get version (optional — detection succeeds even without it)
-    let version = {
-        #[cfg(target_os = "windows")]
-        { Command::new("cmd").args(["/C", &path, "--version"]).output() }
-        #[cfg(not(target_os = "windows"))]
-        { Command::new(&path).arg("--version").output() }
+    #[cfg(target_os = "windows")]
+    {
+        match probe_claude_windows() {
+            Some(v) => ClaudeCliStatus { found: true, version: Some(v) },
+            None    => ClaudeCliStatus { found: false, version: None },
+        }
     }
-    .ok()
-    .filter(|o| o.status.success())
-    .map(|o| String::from_utf8_lossy(&o.stdout).trim().to_string());
-
-    ClaudeCliStatus { found: true, version }
+    #[cfg(not(target_os = "windows"))]
+    {
+        match find_claude_unix() {
+            Some(path) => {
+                let version = Command::new(&path).arg("--version").output().ok()
+                    .filter(|o| o.status.success())
+                    .map(|o| String::from_utf8_lossy(&o.stdout).trim().to_string());
+                ClaudeCliStatus { found: true, version }
+            }
+            None => ClaudeCliStatus { found: false, version: None },
+        }
+    }
 }
 
 /// Run a prompt through `claude -p` headless mode.
 ///
-/// Rules (per spec):
 /// - Prompt via stdin — NEVER as CLI arg (Windows cmd.exe truncates at ~8 191 chars)
-/// - On Windows: cmd /C <full-path-to-claude.cmd> -p   (resolves .cmd shim correctly)
-/// - stdin writing runs in a thread to avoid pipe-buffer deadlock on large prompts
-/// - stderr returned verbatim so actionable messages ("Not logged in") reach the user
+/// - On Windows: `cmd /C claude -p` — cmd.exe resolves the .cmd shim via its own PATH
+/// - stdin written in a thread to avoid pipe-buffer deadlock on large prompts
+/// - stderr returned verbatim so "Not logged in" messages reach the user
 #[tauri::command]
 fn claude_cli_generate(prompt: String) -> Result<String, String> {
-    let path = find_claude()
-        .ok_or_else(|| "claude CLI no encontrado. Instala Claude Code y corre `claude` una vez para iniciar sesión.".to_string())?;
+    #[cfg(not(target_os = "windows"))]
+    let path = find_claude_unix()
+        .ok_or_else(|| "claude CLI no encontrado. Instala Claude Code y ejecuta `claude` una vez para iniciar sesión.".to_string())?;
 
     let mut child = {
         #[cfg(target_os = "windows")]
-        { Command::new("cmd").args(["/C", &path, "-p"]) }
+        { Command::new("cmd").args(["/C", "claude", "-p"]) }
         #[cfg(not(target_os = "windows"))]
         { let mut c = Command::new(&path); c.arg("-p"); c }
     }
