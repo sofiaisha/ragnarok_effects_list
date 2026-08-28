@@ -464,6 +464,11 @@
         <input type="password" id="serper-in" placeholder="Obtén una gratuita en serper.dev">
       </div>
 
+      <div class="fgroup">
+        <label class="flabel" for="fal-in">fal.ai API Key <span style="color:var(--muted);font-weight:400;text-transform:none">(opcional — genera imágenes con Flux · $1 gratis al registrarse)</span></label>
+        <input type="password" id="fal-in" placeholder="fal_...  · fal.ai → Dashboard → API Keys">
+      </div>
+
       <button class="gen-btn" id="gen-btn" onclick="startGeneration()">
         <span>✦</span> Investigar y generar contenido
       </button>
@@ -588,6 +593,7 @@
 const LS = {
   KEY:      'cc_apikey',
   SERPER:   'cc_serper',
+  FAL:      'cc_fal_key',
   BRANDS:   'cc_brands',
   ACTIVE:   'cc_active_brand',
   MANUAL:   id => 'cc_manual_' + id,
@@ -911,6 +917,55 @@ function copyText(id, btn) {
   }).catch(() => toast('No se pudo copiar'));
 }
 
+// ── fal.ai image generation ───────────────────────────────────────────────
+function getFalKey() { return localStorage.getItem(LS.FAL) || ''; }
+function setFalKey(k) {
+  if (k) localStorage.setItem(LS.FAL, k); else localStorage.removeItem(LS.FAL);
+}
+
+function extractVisualConcept(text) {
+  const m = text.match(/CONCEPTO VISUAL[:\s*]+([^\n]+(?:\n(?!##|\*\*|---)[^\n]+){0,4})/i);
+  if (m) return m[1].replace(/\*/g,'').trim().slice(0, 600);
+  return text.slice(0, 400);
+}
+
+async function generateImageFal(prompt) {
+  const key = getFalKey();
+  if (!key) return null;
+  try {
+    const res = await fetch('https://fal.run/fal-ai/flux/dev', {
+      method: 'POST',
+      headers: { 'Authorization': `Key ${key}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ prompt, image_size: 'square_hd', num_images: 1, sync_mode: true }),
+    });
+    if (!res.ok) return null;
+    const data = await res.json();
+    return data.images?.[0]?.url || null;
+  } catch { return null; }
+}
+
+async function injectImagesIntoSections(sections, platforms) {
+  if (!getFalKey()) return;
+  for (const p of platforms) {
+    const concept = extractVisualConcept(sections[p] || '');
+    if (!concept) continue;
+    const sec = document.getElementById(`sec-${p}`);
+    if (!sec) continue;
+    const wrap = document.createElement('div');
+    wrap.style.cssText = 'margin-bottom:12px;border-radius:8px;overflow:hidden;background:var(--panel2);min-height:48px;display:flex;align-items:center;justify-content:center';
+    wrap.innerHTML = '<span style="color:var(--muted);font-size:12px">🎨 Generando imagen con fal.ai Flux…</span>';
+    sec.querySelector('.cblock')?.prepend(wrap);
+    generateImageFal(concept).then(url => {
+      if (url) {
+        wrap.innerHTML = `<img src="${url}" style="width:100%;display:block" alt="Imagen generada">
+          <div style="padding:6px 10px;font-size:11px;color:var(--muted)">Generada con fal.ai · Flux Dev</div>`;
+      } else {
+        wrap.remove();
+      }
+    }).catch(() => wrap.remove());
+  }
+}
+
 // ── Claude Code CLI path (no API key needed) ──────────────────────────────
 let _claudeCliFound = false;
 
@@ -1156,6 +1211,8 @@ async function startGeneration() {
 
   const serperKey = document.getElementById('serper-in').value.trim();
   if (serperKey) localStorage.setItem(LS.SERPER, serperKey);
+  const falKey = document.getElementById('fal-in').value.trim();
+  if (falKey) setFalKey(falKey);
 
   document.getElementById('gen-btn').disabled = true;
   document.getElementById('gen-btn').innerHTML = '<div class="spin"></div> Procesando...';
@@ -1174,7 +1231,9 @@ async function startGeneration() {
   try { generated = await generateContent(topic, research, platforms, tone, lang, brandCtx); setStep('generate', 'done'); }
   catch (e) { showError(`Error generando contenido: ${e.message}`); resetBtn(); return; }
 
-  renderResults(research, parsePlatforms(generated, platforms), platforms);
+  const parsedSections = parsePlatforms(generated, platforms);
+  renderResults(research, parsedSections, platforms);
+  injectImagesIntoSections(parsedSections, platforms);
   toast('✓ Contenido generado exitosamente');
   resetBtn();
 }
@@ -1190,6 +1249,11 @@ renderBrands();
 renderManual();
 if (_activeBrandId) applyBrandToForm();
 syncKeyUI();
+// Restore saved keys into inputs
+const _savedFal = getFalKey();
+if (_savedFal) { const el = document.getElementById('fal-in'); if (el) el.value = _savedFal; }
+const _savedSerper = localStorage.getItem(LS.SERPER) || '';
+if (_savedSerper) { const el = document.getElementById('serper-in'); if (el) el.value = _savedSerper; }
 
 // Auto-detect API key: keychain → Windows registry env → Claude Code settings
 (async () => {
