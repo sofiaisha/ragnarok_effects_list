@@ -129,6 +129,40 @@ fn read_claude_settings_key() -> Option<String> {
     if key.is_empty() { None } else { Some(key) }
 }
 
+/// Run a prompt through `claude -p` (headless mode).
+/// Sends prompt via stdin; returns stdout. No API key needed — uses Claude Code auth.
+#[tauri::command]
+fn claude_cli_generate(prompt: String) -> Result<String, String> {
+    use std::io::Write;
+    let mut child = if cfg!(windows) {
+        Command::new("cmd")
+            .args(["/C", "claude", "-p"])
+            .stdin(std::process::Stdio::piped())
+            .stdout(std::process::Stdio::piped())
+            .stderr(std::process::Stdio::piped())
+            .spawn()
+    } else {
+        Command::new("claude")
+            .arg("-p")
+            .stdin(std::process::Stdio::piped())
+            .stdout(std::process::Stdio::piped())
+            .stderr(std::process::Stdio::piped())
+            .spawn()
+    }
+    .map_err(|e| format!("No se pudo iniciar claude CLI: {e}"))?;
+
+    if let Some(mut stdin) = child.stdin.take() {
+        stdin.write_all(prompt.as_bytes()).map_err(|e| e.to_string())?;
+    }
+    let output = child.wait_with_output().map_err(|e| e.to_string())?;
+    if output.status.success() {
+        Ok(String::from_utf8_lossy(&output.stdout).to_string())
+    } else {
+        let err = String::from_utf8_lossy(&output.stderr).to_string();
+        Err(if err.is_empty() { "claude CLI sin respuesta".into() } else { err })
+    }
+}
+
 #[tauri::command]
 fn resolve_api_key() -> Option<String> {
     // 1. ContentCraft's own keychain entry
@@ -159,6 +193,7 @@ pub fn run() {
             get_api_key,
             delete_api_key,
             detect_claude_cli,
+            claude_cli_generate,
             resolve_api_key,
         ])
         .run(tauri::generate_context!())

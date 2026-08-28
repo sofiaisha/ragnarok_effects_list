@@ -911,6 +911,18 @@ function copyText(id, btn) {
   }).catch(() => toast('No se pudo copiar'));
 }
 
+// ── Claude Code CLI path (no API key needed) ──────────────────────────────
+let _claudeCliFound = false;
+
+async function callClaudeCli(systemPrompt, userPrompt) {
+  const invoke = window.__TAURI__?.core?.invoke || window.__TAURI_INTERNALS__?.invoke;
+  if (!invoke) throw new Error('Tauri no disponible');
+  const combined = systemPrompt
+    ? `<system>\n${systemPrompt}\n</system>\n\n${userPrompt}`
+    : userPrompt;
+  return invoke('claude_cli_generate', { prompt: combined });
+}
+
 // ── Claude API ────────────────────────────────────────────────────────────
 async function callClaude({ messages, tools, system, maxTokens = 8192 }) {
   const apiKey = getKey();
@@ -1020,6 +1032,10 @@ Quiénes son los interesados y qué les mueve.
 
 Idioma: ${lang}`;
 
+  // If Claude Code CLI is available (no API key needed), use it directly
+  if (_claudeCliFound && !getKey()) {
+    return callClaudeCli(system, prompt);
+  }
   return runWithTools([{ role: 'user', content: prompt }], [{
     name: 'web_search',
     description: 'Busca en internet para obtener noticias y datos actuales.',
@@ -1043,6 +1059,9 @@ async function generateContent(topic, research, platforms, tone, lang, brandCtx)
   const blocks = platforms.map(p => PLATFORM_PROMPTS[p] || '').filter(Boolean).join('\n\n');
   const system = `Eres experto en marketing de contenidos con 10+ años en ${lang}.${brandCtx ? '\n\n' + brandCtx : ''} Produces contenido auténtico, específico y accionable.`;
   const prompt = `Genera contenido en ${lang} con tono ${tone} basado en esta investigación:\n\n## INVESTIGACIÓN\n${research}\n\n## TEMA: ${topic}\n\nUsa el formato XML exacto. Contenido auténtico, optimizado por plataforma, con datos de la investigación.\n\n${blocks}`;
+  if (_claudeCliFound && !getKey()) {
+    return callClaudeCli(system, prompt);
+  }
   const resp = await callClaude({ messages: [{ role: 'user', content: prompt }], system, maxTokens: 16000 });
   return extractText(resp);
 }
@@ -1113,7 +1132,8 @@ function showError(msg) {
 
 // ── Main flow ─────────────────────────────────────────────────────────────
 async function startGeneration() {
-  if (!getKey()) { openKeyModal(); toast('⚠️ Configura tu API Key primero'); return; }
+  const hasCli = _claudeCliFound;
+  if (!getKey() && !hasCli) { openKeyModal(); toast('⚠️ Configura tu API Key primero'); return; }
   const topic = document.getElementById('topic-in').value.trim();
   if (!topic) { toast('⚠️ Ingresa un tema'); document.getElementById('topic-in').focus(); return; }
   const platforms = [...document.querySelectorAll('.plat-cb:checked')].map(el => el.value);
@@ -1167,22 +1187,29 @@ syncKeyUI();
   const invoke = window.__TAURI__?.core?.invoke || window.__TAURI_INTERNALS__?.invoke;
   if (!invoke) return;
 
-  // Show Claude Code status in header
+  // Detect Claude Code CLI — if found, app works without API key
   try {
     const cli = await invoke('detect_claude_cli');
     if (cli?.found) {
+      _claudeCliFound = true;
+      // Update header: show Claude Code badge and mark key as satisfied
+      const dot = document.getElementById('key-dot');
+      const lbl = document.getElementById('key-lbl');
+      if (dot && !getKey()) { dot.classList.add('ok'); }
+      if (lbl && !getKey()) { lbl.textContent = 'Claude Code ✓'; }
       const btn = document.getElementById('key-btn');
-      if (btn) {
+      if (btn && !document.getElementById('cc-badge')) {
         const badge = document.createElement('span');
-        badge.style.cssText = 'font-size:11px;color:#3fb950;margin-left:4px';
-        badge.textContent = '· Claude Code ✓';
+        badge.style.cssText = 'font-size:11px;color:#3fb950;margin-left:2px';
+        badge.textContent = '· CLI';
         badge.id = 'cc-badge';
         btn.appendChild(badge);
       }
+      if (!getKey()) toast('✓ Claude Code detectado — no necesitas API Key');
     }
   } catch (_) {}
 
-  // Auto-load key if not already in localStorage
+  // Auto-load API key if not already in localStorage
   if (getKey()) return;
   try {
     const found = await invoke('resolve_api_key');
