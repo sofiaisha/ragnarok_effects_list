@@ -195,6 +195,11 @@
     .plat-lbl:hover { border-color: var(--accent); }
     .plat-cb:checked + .plat-lbl { border-color: var(--accent); background: rgba(88,166,255,.09); }
     .plat-ico { width: 38px; height: 38px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; }
+    .md-toggle { display: none; align-items: center; gap: 5px; }
+    .md-toggle.visible { display: flex; }
+    .md-cb { display: none; }
+    .md-lbl { padding: 4px 10px; border: 1px solid var(--line); border-radius: 6px; cursor: pointer; font-size: 11px; font-weight: 600; color: var(--muted); font-family: monospace; transition: all 0.15s; user-select: none; }
+    .md-cb:checked + .md-lbl { border-color: var(--green); color: var(--green); background: rgba(63,185,80,.1); }
 
     /* ── Tone ── */
     .tone-row { display: flex; flex-wrap: wrap; gap: 6px; }
@@ -440,8 +445,12 @@
       <div class="fgroup">
         <label class="flabel">Plataformas a generar</label>
         <div class="plat-grid">
-          <input class="plat-cb" type="checkbox" id="plt-blog" value="blog" checked>
+          <input class="plat-cb" type="checkbox" id="plt-blog" value="blog" checked onchange="document.getElementById('blog-md-toggle').classList.toggle('visible',this.checked)">
           <label class="plat-lbl" for="plt-blog"><div class="plat-ico" style="background:#132030">📝</div>Blog</label>
+          <span class="md-toggle visible" id="blog-md-toggle" title="Generar en formato Markdown puro (.md)">
+            <input class="md-cb" type="checkbox" id="blog-md-cb">
+            <label class="md-lbl" for="blog-md-cb">.md</label>
+          </span>
           <input class="plat-cb" type="checkbox" id="plt-instagram" value="instagram" checked>
           <label class="plat-lbl" for="plt-instagram"><div class="plat-ico" style="background:linear-gradient(135deg,#6228b6,#c8312a,#f0a500)">📸</div>Instagram</label>
           <input class="plat-cb" type="checkbox" id="plt-linkedin" value="linkedin" checked>
@@ -1138,7 +1147,12 @@ const PLATFORM_PROMPTS = {
 };
 
 async function generateContent(topic, research, platforms, tone, lang, brandCtx) {
-  const blocks = platforms.map(p => PLATFORM_PROMPTS[p] || '').filter(Boolean).join('\n\n');
+  const blogMd = platforms.includes('blog') && document.getElementById('blog-md-cb')?.checked;
+  const prompts = { ...PLATFORM_PROMPTS };
+  if (blogMd) {
+    prompts.blog = `<platform id="blog">Blog en Markdown puro (archivo .md): usa # para el título principal, ## para secciones H2, ### para subsecciones, **negrita**, *cursiva*, listas con -, blockquotes con >. Incluye al inicio: título SEO, meta descripción (como <!-- meta: ... -->), luego introducción, 5-6 secciones ##, conclusión + CTA, y al final una línea <!-- tags: tag1, tag2 -->. 900-1200 palabras.</platform>`;
+  }
+  const blocks = platforms.map(p => prompts[p] || '').filter(Boolean).join('\n\n');
   const system = `Eres experto en marketing de contenidos con 10+ años en ${lang}.${brandCtx ? '\n\n' + brandCtx : ''} Produces contenido auténtico, específico y accionable.`;
   const prompt = `Genera contenido en ${lang} con tono ${tone} basado en esta investigación:\n\n## INVESTIGACIÓN\n${research}\n\n## TEMA: ${topic}\n\nUsa el formato XML exacto. Contenido auténtico, optimizado por plataforma, con datos de la investigación.\n\n${blocks}`;
   if (_claudeCliFound && !getKey()) {
@@ -1171,19 +1185,23 @@ function renderResults(research, sections, platforms) {
   const tabsBar = document.getElementById('tabs-bar');
   const tabsContent = document.getElementById('tabs-content');
   tabsBar.innerHTML = ''; tabsContent.innerHTML = '';
+  const blogMd = platforms.includes('blog') && document.getElementById('blog-md-cb')?.checked;
   platforms.forEach((p, i) => {
     const cfg = PLAT[p] || { label: p, icon: '📄' };
     const btn = document.createElement('button');
     btn.className = `tab-btn${i === 0 ? ' active' : ''}`;
     btn.id = `tab-${p}`;
-    btn.innerHTML = `${cfg.icon} ${cfg.label}`;
+    btn.innerHTML = `${cfg.icon} ${cfg.label}${p === 'blog' && blogMd ? ' <span style="font-size:10px;color:var(--green)">.md</span>' : ''}`;
     btn.onclick = () => switchTab(p, platforms);
     tabsBar.appendChild(btn);
     const textId = `txt-${p}`;
+    const mdBtn = (p === 'blog' && blogMd)
+      ? `<button class="copy-btn" style="color:var(--green)" onclick="copyText('${textId}',this)" title="Copia el Markdown listo para pegar en tu editor">⎘ Copiar .md</button>`
+      : '';
     const sec = document.createElement('div');
     sec.className = `plt-section${i === 0 ? ' active' : ''}`;
     sec.id = `sec-${p}`;
-    sec.innerHTML = `<div class="cblock"><div class="cblock-head">${cfg.icon} ${cfg.label}<button class="copy-btn" onclick="copyText('${textId}',this)">⎘ Copiar</button></div><div class="cblock-body" id="${textId}">${escHtml(sections[p] || '')}</div></div>`;
+    sec.innerHTML = `<div class="cblock"><div class="cblock-head">${cfg.icon} ${cfg.label}${p === 'blog' && blogMd ? ' <span style="font-size:10px;opacity:.7">Markdown</span>' : ''}<button class="copy-btn" onclick="copyText('${textId}',this)">⎘ Copiar</button>${mdBtn}</div><div class="cblock-body" id="${textId}" style="${p === 'blog' && blogMd ? 'font-family:monospace;font-size:12.5px;white-space:pre-wrap' : ''}">${escHtml(sections[p] || '')}</div></div>`;
     tabsContent.appendChild(sec);
   });
   document.getElementById('results-card').classList.remove('hidden');
