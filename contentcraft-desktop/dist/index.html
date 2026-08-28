@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>ContentCraft — Herramienta de Creación de Contenido</title>
+  <title>ContentCraft</title>
   <style>
     :root {
       --bg: #070b10;
@@ -14,7 +14,6 @@
       --text: #e6edf3;
       --muted: #7d8590;
       --accent: #58a6ff;
-      --accent2: #79c0ff;
       --green: #3fb950;
       --purple: #bc8cff;
       --orange: #ffa657;
@@ -22,19 +21,15 @@
       color-scheme: dark;
     }
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      min-height: 100vh;
+      background: var(--bg); color: var(--text); min-height: 100vh;
     }
 
     /* ── Header ── */
     .app-header {
       position: sticky; top: 0; z-index: 200;
-      background: #0d1117cc;
-      border-bottom: 1px solid var(--line);
+      background: #0d1117cc; border-bottom: 1px solid var(--line);
       backdrop-filter: blur(12px);
     }
     .header-inner {
@@ -44,17 +39,15 @@
     }
     .logo {
       display: flex; align-items: center; gap: 10px;
-      font-weight: 800; font-size: 19px; text-decoration: none;
+      font-weight: 800; font-size: 19px;
       background: linear-gradient(135deg, #58a6ff, #bc8cff);
-      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-      background-clip: text;
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
     }
     .logo-gem {
       width: 30px; height: 30px; border-radius: 7px;
       background: linear-gradient(135deg, #1f6feb, #8957e5);
       display: flex; align-items: center; justify-content: center;
-      font-size: 16px; flex-shrink: 0;
-      -webkit-text-fill-color: white;
+      font-size: 16px; -webkit-text-fill-color: white; flex-shrink: 0;
     }
     .key-btn {
       display: flex; align-items: center; gap: 7px;
@@ -68,12 +61,12 @@
     .dot.ok { background: var(--green); }
 
     /* ── Layout ── */
-    .main { max-width: 1100px; margin: 0 auto; padding: 32px 24px; display: grid; gap: 22px; }
+    .main { max-width: 1100px; margin: 0 auto; padding: 32px 24px; display: grid; gap: 20px; }
 
     /* ── Hero ── */
-    .hero { text-align: center; padding: 24px 0 8px; }
+    .hero { text-align: center; padding: 20px 0 4px; }
     .hero h1 {
-      font-size: clamp(26px, 4vw, 44px); font-weight: 800; line-height: 1.12;
+      font-size: clamp(28px, 4vw, 46px); font-weight: 800; line-height: 1.1;
       background: linear-gradient(135deg, #e6edf3 0%, #58a6ff 45%, #bc8cff 100%);
       -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
     }
@@ -83,8 +76,7 @@
     .card { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
     .card-head {
       padding: 13px 20px; border-bottom: 1px solid var(--line);
-      display: flex; align-items: center; gap: 9px;
-      font-weight: 600; font-size: 14px;
+      display: flex; align-items: center; gap: 9px; font-weight: 600; font-size: 14px;
     }
     .head-icon {
       width: 26px; height: 26px; border-radius: 6px;
@@ -92,15 +84,80 @@
     }
     .card-body { padding: 20px; display: grid; gap: 18px; }
 
-    /* ── Form elements ── */
-    .fgroup { display: grid; gap: 7px; }
-    .flabel {
-      font-size: 12px; font-weight: 600; color: var(--muted);
-      text-transform: uppercase; letter-spacing: 0.4px;
+    /* ── Section label ── */
+    .sec-label {
+      font-size: 11px; font-weight: 700; color: var(--muted);
+      text-transform: uppercase; letter-spacing: .5px; margin-bottom: 8px;
     }
+
+    /* ── Brand chips ── */
+    .brand-row {
+      display: flex; flex-wrap: wrap; gap: 8px; align-items: center;
+    }
+    .brand-chip {
+      display: flex; align-items: center; gap: 7px;
+      padding: 7px 13px; border-radius: 8px;
+      border: 1px solid var(--line); background: var(--panel2);
+      color: var(--muted); cursor: pointer; font-size: 13px; font-weight: 500;
+      font-family: inherit; transition: all 0.15s; white-space: nowrap;
+    }
+    .brand-chip:hover { border-color: var(--accent); color: var(--text); }
+    .brand-chip.active {
+      border-color: var(--accent); background: rgba(88,166,255,.12);
+      color: var(--accent);
+    }
+    .brand-chip-icon { font-size: 16px; line-height: 1; }
+    .brand-add {
+      display: flex; align-items: center; gap: 6px;
+      padding: 7px 12px; border-radius: 8px;
+      border: 1px dashed var(--line); background: transparent;
+      color: var(--muted); cursor: pointer; font-size: 13px;
+      font-family: inherit; transition: all 0.15s; white-space: nowrap;
+    }
+    .brand-add:hover { border-color: var(--accent); color: var(--accent); }
+
+    /* ── Manual de marca ── */
+    .manual-row {
+      display: flex; align-items: center; gap: 14px;
+      padding: 12px 14px; background: var(--panel2); border: 1px solid var(--line);
+      border-radius: 8px;
+    }
+    .manual-upload-btn {
+      display: flex; align-items: center; gap: 7px; flex-shrink: 0;
+      padding: 7px 14px; border-radius: 7px;
+      border: 1px solid var(--line); background: var(--panel);
+      color: var(--text); cursor: pointer; font-size: 13px; font-weight: 500;
+      font-family: inherit; transition: all 0.15s;
+    }
+    .manual-upload-btn:hover { border-color: var(--accent); }
+    .manual-info { flex: 1; min-width: 0; }
+    .manual-filename {
+      font-size: 13px; font-weight: 500; white-space: nowrap;
+      overflow: hidden; text-overflow: ellipsis;
+    }
+    .manual-note { font-size: 12px; color: var(--muted); margin-top: 2px; }
+    .manual-del {
+      background: none; border: none; color: var(--muted); cursor: pointer;
+      font-size: 15px; flex-shrink: 0; padding: 4px; transition: color 0.15s;
+    }
+    .manual-del:hover { color: var(--red); }
+    input.file-input { display: none; }
+
+    /* ── Topic chips ── */
+    .topic-wrap { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 4px; }
+    .topic-chip {
+      padding: 5px 13px; border-radius: 999px;
+      border: 1px solid var(--line); background: var(--panel2);
+      font-size: 12px; color: var(--muted); cursor: pointer; transition: all 0.15s;
+      font-family: inherit;
+    }
+    .topic-chip:hover { border-color: var(--accent); color: var(--accent); }
+
+    /* ── Form ── */
+    .fgroup { display: grid; gap: 7px; }
+    .flabel { font-size: 12px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .4px; }
     .frow { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
     @media (max-width: 580px) { .frow { grid-template-columns: 1fr; } }
-
     textarea, select, input[type=number], input[type=password], input[type=text] {
       width: 100%; padding: 10px 13px;
       background: var(--panel2); border: 1px solid var(--line); border-radius: 8px;
@@ -121,7 +178,7 @@
     }
     .time-toggle input:checked + label { background: var(--accent); color: #fff; }
 
-    /* ── Days row ── */
+    /* ── Days ── */
     .days-row { display: flex; align-items: center; gap: 10px; }
     input[type=range] { flex: 1; accent-color: var(--accent); cursor: pointer; }
     input[type=number].days-num { width: 70px; text-align: center; flex-shrink: 0; padding: 9px 6px; }
@@ -137,12 +194,9 @@
     }
     .plat-lbl:hover { border-color: var(--accent); }
     .plat-cb:checked + .plat-lbl { border-color: var(--accent); background: rgba(88,166,255,.09); }
-    .plat-ico {
-      width: 38px; height: 38px; border-radius: 10px;
-      display: flex; align-items: center; justify-content: center; font-size: 20px;
-    }
+    .plat-ico { width: 38px; height: 38px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; }
 
-    /* ── Tone chips ── */
+    /* ── Tone ── */
     .tone-row { display: flex; flex-wrap: wrap; gap: 6px; }
     .tone-cb { display: none; }
     .tone-lbl {
@@ -152,7 +206,7 @@
     }
     .tone-cb:checked + .tone-lbl { border-color: var(--purple); color: var(--purple); background: rgba(188,140,255,.1); }
 
-    /* ── Generate button ── */
+    /* ── Gen button ── */
     .gen-btn {
       display: flex; align-items: center; justify-content: center; gap: 10px;
       width: 100%; padding: 15px;
@@ -161,10 +215,7 @@
       color: #fff; font-size: 15px; font-weight: 700;
       cursor: pointer; font-family: inherit; transition: all 0.2s;
     }
-    .gen-btn:hover:not(:disabled) {
-      transform: translateY(-1px);
-      box-shadow: 0 8px 28px rgba(88,166,255,.28);
-    }
+    .gen-btn:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 8px 28px rgba(88,166,255,.28); }
     .gen-btn:disabled { opacity: .55; cursor: not-allowed; }
 
     /* ── Progress ── */
@@ -175,43 +226,31 @@
       border-radius: 8px; font-size: 13px; opacity: .4; transition: all 0.3s;
     }
     .step.active { opacity: 1; border-color: var(--accent); }
-    .step.done  { opacity: 1; border-color: var(--green); }
+    .step.done   { opacity: 1; border-color: var(--green); }
     .step-num {
       width: 26px; height: 26px; border-radius: 50%; flex-shrink: 0;
       display: flex; align-items: center; justify-content: center; font-size: 12px;
       border: 1px solid var(--line);
     }
     .step.active .step-num { background: var(--accent); border-color: var(--accent); color: #fff; }
-    .step.done  .step-num { background: var(--green); border-color: var(--green); color: #fff; }
+    .step.done   .step-num { background: var(--green); border-color: var(--green); color: #fff; }
     .step-info strong { display: block; font-weight: 600; margin-bottom: 2px; }
     .step-info span { color: var(--muted); font-size: 12px; }
 
-    /* ── Spinner ── */
     @keyframes spin { to { transform: rotate(360deg); } }
-    .spin {
-      display: inline-block; width: 14px; height: 14px;
-      border: 2px solid rgba(255,255,255,.25); border-top-color: #fff;
-      border-radius: 50%; animation: spin .7s linear infinite;
-    }
+    .spin { display: inline-block; width: 14px; height: 14px; border: 2px solid rgba(255,255,255,.25); border-top-color: #fff; border-radius: 50%; animation: spin .7s linear infinite; }
 
-    /* ── Research box ── */
+    /* ── Results ── */
     .research-box {
-      font-size: 13px; line-height: 1.65; color: var(--text);
-      white-space: pre-wrap; word-break: break-word;
+      font-size: 13px; line-height: 1.65; white-space: pre-wrap; word-break: break-word;
       max-height: 380px; overflow-y: auto; padding: 16px;
       background: var(--panel2); border: 1px solid var(--line); border-radius: 8px;
     }
-
-    /* ── Platform tabs ── */
-    .tabs-bar {
-      display: flex; gap: 4px; overflow-x: auto; padding: 16px 20px 0;
-      border-top: 1px solid var(--line);
-    }
+    .tabs-bar { display: flex; gap: 4px; overflow-x: auto; padding: 16px 20px 0; border-top: 1px solid var(--line); }
     .tabs-bar::-webkit-scrollbar { height: 4px; }
     .tabs-bar::-webkit-scrollbar-thumb { background: var(--line); border-radius: 2px; }
     .tab-btn {
-      display: flex; align-items: center; gap: 5px;
-      padding: 7px 14px; white-space: nowrap;
+      display: flex; align-items: center; gap: 5px; padding: 7px 14px; white-space: nowrap;
       background: transparent; border: 1px solid var(--line); border-radius: 6px;
       color: var(--muted); cursor: pointer; font-size: 13px; font-weight: 500;
       font-family: inherit; transition: all 0.15s; flex-shrink: 0;
@@ -219,33 +258,16 @@
     .tab-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; }
     .tab-btn:hover:not(.active) { border-color: var(--accent); color: var(--text); }
     .tabs-content { padding: 16px 20px 20px; }
-
-    /* ── Content section ── */
     .plt-section { display: none; }
     .plt-section.active { display: grid; gap: 12px; }
-
     .cblock { background: var(--panel2); border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
-    .cblock-head {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 9px 14px; border-bottom: 1px solid var(--line);
-      font-size: 11px; font-weight: 700; color: var(--muted);
-      text-transform: uppercase; letter-spacing: .5px;
-    }
-    .cblock-body {
-      padding: 14px; font-size: 13px; line-height: 1.7;
-      white-space: pre-wrap; word-break: break-word;
-      max-height: 520px; overflow-y: auto;
-    }
-    .copy-btn {
-      display: flex; align-items: center; gap: 4px;
-      padding: 4px 9px; font-size: 11px; font-family: inherit;
-      background: transparent; border: 1px solid var(--line); border-radius: 4px;
-      color: var(--muted); cursor: pointer; transition: all 0.15s; flex-shrink: 0;
-    }
+    .cblock-head { display: flex; align-items: center; justify-content: space-between; padding: 9px 14px; border-bottom: 1px solid var(--line); font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; }
+    .cblock-body { padding: 14px; font-size: 13px; line-height: 1.7; white-space: pre-wrap; word-break: break-word; max-height: 520px; overflow-y: auto; user-select: text; }
+    .copy-btn { display: flex; align-items: center; gap: 4px; padding: 4px 9px; font-size: 11px; font-family: inherit; background: transparent; border: 1px solid var(--line); border-radius: 4px; color: var(--muted); cursor: pointer; transition: all 0.15s; }
     .copy-btn:hover { border-color: var(--accent); color: var(--accent); }
     .copy-btn.ok { border-color: var(--green); color: var(--green); }
 
-    /* ── Modal ── */
+    /* ── Modals ── */
     .overlay {
       position: fixed; inset: 0; background: rgba(0,0,0,.72);
       display: flex; align-items: center; justify-content: center;
@@ -255,55 +277,42 @@
       background: var(--panel); border: 1px solid var(--line); border-radius: 12px;
       width: 100%; max-width: 440px; padding: 24px; display: grid; gap: 14px;
     }
+    .modal-wide { max-width: 520px; }
     .modal h2 { font-size: 18px; font-weight: 700; }
     .modal p { font-size: 13px; color: var(--muted); line-height: 1.5; }
-    .modal-row { display: flex; gap: 8px; justify-content: flex-end; }
-    .btn-sec {
-      padding: 8px 16px; border: 1px solid var(--line); border-radius: 6px;
-      background: transparent; color: var(--text); cursor: pointer; font-size: 13px; font-family: inherit;
-    }
-    .btn-pri {
-      padding: 8px 16px; border: 1px solid #388bfd; border-radius: 6px;
-      background: #1f6feb; color: #fff; cursor: pointer; font-size: 13px;
-      font-weight: 600; font-family: inherit;
-    }
+    .modal-row { display: flex; gap: 8px; justify-content: flex-end; align-items: center; }
+    .btn-sec { padding: 8px 16px; border: 1px solid var(--line); border-radius: 6px; background: transparent; color: var(--text); cursor: pointer; font-size: 13px; font-family: inherit; }
+    .btn-pri { padding: 8px 16px; border: 1px solid #388bfd; border-radius: 6px; background: #1f6feb; color: #fff; cursor: pointer; font-size: 13px; font-weight: 600; font-family: inherit; }
     .btn-pri:hover { background: #388bfd; }
-    .keychain-badge {
-      display: inline-flex; align-items: center; gap: 5px;
-      padding: 4px 10px; border-radius: 5px;
-      background: rgba(63,185,80,.12); border: 1px solid rgba(63,185,80,.3);
-      font-size: 11px; font-weight: 600; color: var(--green);
-    }
+    .btn-danger { padding: 8px 16px; border: 1px solid var(--red); border-radius: 6px; background: transparent; color: var(--red); cursor: pointer; font-size: 13px; font-family: inherit; }
+    .modal-fgroup { display: grid; gap: 6px; }
+    .modal-label { font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .4px; }
+    .modal-plat-row { display: flex; flex-wrap: wrap; gap: 5px; }
+    .modal-plat-cb { display: none; }
+    .modal-plat-lbl { padding: 5px 10px; border: 1px solid var(--line); border-radius: 6px; cursor: pointer; font-size: 12px; color: var(--muted); transition: all 0.15s; }
+    .modal-plat-cb:checked + .modal-plat-lbl { border-color: var(--accent); color: var(--accent); background: rgba(88,166,255,.09); }
+    .modal-tone-row { display: flex; flex-wrap: wrap; gap: 5px; }
+    .modal-tone-cb { display: none; }
+    .modal-tone-lbl { padding: 5px 10px; border: 1px solid var(--line); border-radius: 999px; cursor: pointer; font-size: 12px; color: var(--muted); transition: all 0.15s; }
+    .modal-tone-cb:checked + .modal-tone-lbl { border-color: var(--purple); color: var(--purple); background: rgba(188,140,255,.1); }
 
-    /* ── Toast ── */
-    .toast {
-      position: fixed; bottom: 24px; right: 24px;
-      background: var(--panel); border: 1px solid var(--line); border-radius: 8px;
-      padding: 11px 16px; font-size: 13px;
-      opacity: 0; transform: translateY(12px); transition: all 0.25s;
-      z-index: 999; pointer-events: none; max-width: 340px;
-    }
+    /* ── Toast / Error ── */
+    .toast { position: fixed; bottom: 24px; right: 24px; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 11px 16px; font-size: 13px; opacity: 0; transform: translateY(12px); transition: all 0.25s; z-index: 2000; pointer-events: none; max-width: 340px; }
     .toast.show { opacity: 1; transform: translateY(0); }
-
-    /* ── Error banner ── */
-    .error-banner {
-      padding: 12px 16px; background: rgba(248,81,73,.1); border: 1px solid rgba(248,81,73,.35);
-      border-radius: 8px; font-size: 13px; color: var(--red); line-height: 1.5;
-    }
-
+    .error-banner { padding: 12px 16px; background: rgba(248,81,73,.1); border: 1px solid rgba(248,81,73,.35); border-radius: 8px; font-size: 13px; color: var(--red); line-height: 1.5; }
     .hidden { display: none !important; }
     hr.div { border: none; border-top: 1px solid var(--line); }
   </style>
 </head>
 <body>
 
-<!-- ════════════════════ HEADER ════════════════════ -->
+<!-- HEADER -->
 <header class="app-header">
   <div class="header-inner">
-    <a class="logo" href="#">
+    <div class="logo">
       <div class="logo-gem">✦</div>
       ContentCraft
-    </a>
+    </div>
     <button class="key-btn" onclick="openKeyModal()">
       <span class="dot" id="key-dot"></span>
       <span id="key-lbl">Configurar API Key</span>
@@ -311,15 +320,49 @@
   </div>
 </header>
 
-<!-- ════════════════════ MAIN ════════════════════ -->
+<!-- MAIN -->
 <main class="main">
 
   <div class="hero">
     <h1>Investiga. Crea. Publica.</h1>
-    <p>Ingresa un tema, elige el período y las plataformas. ContentCraft investiga y genera todo el contenido listo para publicar.</p>
+    <p>Selecciona tu marca, sube tu manual de brand y genera contenido listo para publicar en segundos.</p>
   </div>
 
-  <!-- ── Config card ── -->
+  <!-- ── Perfil de Negocio ── -->
+  <div class="card">
+    <div class="card-head">
+      <div class="head-icon" style="background:#1a1040">🏢</div>
+      Perfil de Negocio
+    </div>
+    <div class="card-body">
+
+      <div>
+        <div class="sec-label">Mis Marcas</div>
+        <div class="brand-row" id="brand-row">
+          <!-- rendered by JS -->
+          <button class="brand-add" onclick="openBrandModal(null)">+ Nueva marca</button>
+        </div>
+      </div>
+
+      <div>
+        <div class="sec-label">Manual de Marca</div>
+        <div class="manual-row" id="manual-row">
+          <button class="manual-upload-btn" onclick="triggerManualUpload()">
+            📄 Subir manual
+          </button>
+          <div class="manual-info">
+            <div class="manual-filename" id="manual-filename" style="color:var(--muted)">Ningún archivo cargado</div>
+            <div class="manual-note" id="manual-note">Acepta .txt · .md · .pdf (texto)</div>
+          </div>
+          <button class="manual-del hidden" id="manual-del" onclick="removeManual()">✕</button>
+        </div>
+        <input type="file" class="file-input" id="manual-file" accept=".txt,.md" onchange="handleManualFile(event)">
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── Configuración ── -->
   <div class="card">
     <div class="card-head">
       <div class="head-icon" style="background:#0f2644">🔍</div>
@@ -327,15 +370,14 @@
     </div>
     <div class="card-body">
 
-      <!-- Topic -->
       <div class="fgroup">
         <label class="flabel" for="topic-in">Tema a investigar</label>
+        <div class="topic-wrap hidden" id="topic-wrap"></div>
         <textarea id="topic-in" rows="2"
-          placeholder="Ej: AWS re:Invent 2025 · Agentes de IA · Viajes con niños en Europa · Videojuegos indie · Eventos de tecnología en LATAM"></textarea>
+          placeholder="Ej: AWS re:Invent 2025 · Agentes de IA · Gadgets 2025 · Tendencias de moda"></textarea>
       </div>
 
       <div class="frow">
-        <!-- Time direction -->
         <div class="fgroup">
           <label class="flabel">Dirección temporal</label>
           <div class="time-toggle">
@@ -345,23 +387,18 @@
             <label for="dir-future">Próximos días ⏭</label>
           </div>
         </div>
-
-        <!-- Days -->
         <div class="fgroup">
           <label class="flabel">Días: <strong id="days-lbl" style="color:var(--accent)">7</strong></label>
           <div class="days-row">
-            <input type="range" id="days-range" min="1" max="90" value="7"
-              oninput="syncDays('range')">
-            <input type="number" class="days-num" id="days-num" min="1" max="90" value="7"
-              oninput="syncDays('num')">
+            <input type="range" id="days-range" min="1" max="90" value="7" oninput="syncDays('range')">
+            <input type="number" class="days-num" id="days-num" min="1" max="90" value="7" oninput="syncDays('num')">
           </div>
         </div>
       </div>
 
       <div class="frow">
-        <!-- Language -->
         <div class="fgroup">
-          <label class="flabel" for="lang-sel">Idioma del contenido</label>
+          <label class="flabel" for="lang-sel">Idioma</label>
           <select id="lang-sel">
             <option value="español">Español</option>
             <option value="inglés">English</option>
@@ -370,7 +407,6 @@
             <option value="italiano">Italiano</option>
           </select>
         </div>
-        <!-- Model -->
         <div class="fgroup">
           <label class="flabel" for="model-sel">Modelo</label>
           <select id="model-sel">
@@ -381,7 +417,6 @@
         </div>
       </div>
 
-      <!-- Tone -->
       <div class="fgroup">
         <label class="flabel">Tono</label>
         <div class="tone-row">
@@ -402,55 +437,30 @@
 
       <hr class="div">
 
-      <!-- Platforms -->
       <div class="fgroup">
         <label class="flabel">Plataformas a generar</label>
         <div class="plat-grid">
-          <input class="plat-cb" type="checkbox" id="plt-blog"       value="blog"       checked>
-          <label class="plat-lbl" for="plt-blog">
-            <div class="plat-ico" style="background:#132030">📝</div>Blog
-          </label>
-
-          <input class="plat-cb" type="checkbox" id="plt-instagram"  value="instagram"  checked>
-          <label class="plat-lbl" for="plt-instagram">
-            <div class="plat-ico" style="background:linear-gradient(135deg,#6228b6,#c8312a,#f0a500)">📸</div>Instagram
-          </label>
-
-          <input class="plat-cb" type="checkbox" id="plt-linkedin"   value="linkedin"   checked>
-          <label class="plat-lbl" for="plt-linkedin">
-            <div class="plat-ico" style="background:#004e7c">💼</div>LinkedIn
-          </label>
-
-          <input class="plat-cb" type="checkbox" id="plt-facebook"   value="facebook"   checked>
-          <label class="plat-lbl" for="plt-facebook">
-            <div class="plat-ico" style="background:#1050a8">👥</div>Facebook
-          </label>
-
-          <input class="plat-cb" type="checkbox" id="plt-youtube"    value="youtube"    checked>
-          <label class="plat-lbl" for="plt-youtube">
-            <div class="plat-ico" style="background:#8b0000">▶️</div>YouTube
-          </label>
-
-          <input class="plat-cb" type="checkbox" id="plt-twitter"    value="twitter">
-          <label class="plat-lbl" for="plt-twitter">
-            <div class="plat-ico" style="background:#111">𝕏</div>X / Twitter
-          </label>
-
-          <input class="plat-cb" type="checkbox" id="plt-tiktok"     value="tiktok">
-          <label class="plat-lbl" for="plt-tiktok">
-            <div class="plat-ico" style="background:#080808">🎵</div>TikTok
-          </label>
-
+          <input class="plat-cb" type="checkbox" id="plt-blog" value="blog" checked>
+          <label class="plat-lbl" for="plt-blog"><div class="plat-ico" style="background:#132030">📝</div>Blog</label>
+          <input class="plat-cb" type="checkbox" id="plt-instagram" value="instagram" checked>
+          <label class="plat-lbl" for="plt-instagram"><div class="plat-ico" style="background:linear-gradient(135deg,#6228b6,#c8312a,#f0a500)">📸</div>Instagram</label>
+          <input class="plat-cb" type="checkbox" id="plt-linkedin" value="linkedin" checked>
+          <label class="plat-lbl" for="plt-linkedin"><div class="plat-ico" style="background:#004e7c">💼</div>LinkedIn</label>
+          <input class="plat-cb" type="checkbox" id="plt-facebook" value="facebook" checked>
+          <label class="plat-lbl" for="plt-facebook"><div class="plat-ico" style="background:#1050a8">👥</div>Facebook</label>
+          <input class="plat-cb" type="checkbox" id="plt-youtube" value="youtube" checked>
+          <label class="plat-lbl" for="plt-youtube"><div class="plat-ico" style="background:#8b0000">▶️</div>YouTube</label>
+          <input class="plat-cb" type="checkbox" id="plt-twitter" value="twitter">
+          <label class="plat-lbl" for="plt-twitter"><div class="plat-ico" style="background:#111">𝕏</div>X / Twitter</label>
+          <input class="plat-cb" type="checkbox" id="plt-tiktok" value="tiktok">
+          <label class="plat-lbl" for="plt-tiktok"><div class="plat-ico" style="background:#080808">🎵</div>TikTok</label>
           <input class="plat-cb" type="checkbox" id="plt-newsletter" value="newsletter">
-          <label class="plat-lbl" for="plt-newsletter">
-            <div class="plat-ico" style="background:#1e2535">📧</div>Newsletter
-          </label>
+          <label class="plat-lbl" for="plt-newsletter"><div class="plat-ico" style="background:#1e2535">📧</div>Newsletter</label>
         </div>
       </div>
 
-      <!-- Serper key (optional) -->
-      <div class="fgroup" style="display:grid;gap:4px">
-        <label class="flabel" for="serper-in">Serper API Key <span style="color:var(--muted);font-weight:400;text-transform:none">(opcional — activa búsqueda web en tiempo real)</span></label>
+      <div class="fgroup">
+        <label class="flabel" for="serper-in">Serper API Key <span style="color:var(--muted);font-weight:400;text-transform:none">(opcional — búsqueda web en tiempo real)</span></label>
         <input type="password" id="serper-in" placeholder="Obtén una gratuita en serper.dev">
       </div>
 
@@ -461,63 +471,47 @@
     </div>
   </div>
 
-  <!-- ── Progress card ── -->
+  <!-- Progress -->
   <div class="card hidden" id="prog-card">
-    <div class="card-head">
-      <div class="head-icon" style="background:#0f2520">⚡</div>
-      Procesando
-    </div>
+    <div class="card-head"><div class="head-icon" style="background:#0f2520">⚡</div>Procesando</div>
     <div class="card-body">
       <div class="steps">
         <div class="step" id="s-research">
           <div class="step-num" id="sn-research">1</div>
-          <div class="step-info">
-            <strong>Investigando el tema</strong>
-            <span id="s-research-detail">Analizando fuentes y tendencias...</span>
-          </div>
+          <div class="step-info"><strong>Investigando el tema</strong><span id="s-research-detail">Analizando fuentes...</span></div>
         </div>
         <div class="step" id="s-generate">
           <div class="step-num" id="sn-generate">2</div>
-          <div class="step-info">
-            <strong>Generando contenido</strong>
-            <span>Creando contenido optimizado para cada plataforma...</span>
-          </div>
+          <div class="step-info"><strong>Generando contenido</strong><span>Creando contenido optimizado...</span></div>
         </div>
       </div>
       <div class="error-banner hidden" id="err-banner"></div>
     </div>
   </div>
 
-  <!-- ── Results card ── -->
+  <!-- Results -->
   <div class="card hidden" id="results-card">
-    <!-- Research -->
     <div class="card-head">
       <div class="head-icon" style="background:#0f2520">📊</div>
       Investigación
       <span style="margin-left:auto;font-size:12px;color:var(--muted)" id="res-meta"></span>
     </div>
-    <div style="padding:16px 20px">
-      <div class="research-box" id="res-box"></div>
-    </div>
-
-    <!-- Platform tabs -->
+    <div style="padding:16px 20px"><div class="research-box" id="res-box"></div></div>
     <div class="tabs-bar" id="tabs-bar"></div>
     <div class="tabs-content" id="tabs-content"></div>
   </div>
 
 </main>
 
-<!-- ════════════════════ API KEY MODAL ════════════════════ -->
+<!-- API KEY MODAL -->
 <div class="overlay hidden" id="key-modal" onclick="if(event.target===this)closeKeyModal()">
   <div class="modal">
     <div>
       <h2>🔑 Anthropic API Key</h2>
-      <p style="margin-top:6px" id="key-modal-desc">Tu key se guarda solo en este navegador (localStorage) y se envía directamente a api.anthropic.com. Nunca pasa por ningún servidor intermedio.</p>
+      <p style="margin-top:6px">Tu key se guarda localmente en esta app. Se envía directamente a api.anthropic.com — nunca pasa por servidores intermedios.</p>
     </div>
-    <span class="keychain-badge hidden" id="keychain-badge">🔒 Guardada en el llavero del sistema</span>
-    <input type="password" id="key-in" placeholder="sk-ant-api03-..."
-      onkeydown="if(event.key==='Enter')saveKey()">
-    <p>Obtén tu key en <a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener" style="color:var(--accent)">console.anthropic.com</a></p>
+    <input type="password" id="key-in" placeholder="sk-ant-api03-..." onkeydown="if(event.key==='Enter')saveKey()">
+    <p>Obtén tu key en <a href="https://console.anthropic.com/settings/keys" target="_blank" style="color:var(--accent)">console.anthropic.com</a></p>
     <div class="modal-row">
       <button class="btn-sec" onclick="closeKeyModal()">Cancelar</button>
       <button class="btn-pri" onclick="saveKey()">Guardar key</button>
@@ -525,77 +519,99 @@
   </div>
 </div>
 
-<!-- ════════════════════ TOAST ════════════════════ -->
+<!-- BRAND MODAL -->
+<div class="overlay hidden" id="brand-modal" onclick="if(event.target===this)closeBrandModal()">
+  <div class="modal modal-wide">
+    <h2 id="bm-title">Nueva marca</h2>
+
+    <div class="frow">
+      <div class="modal-fgroup">
+        <div class="modal-label">Emoji / ícono</div>
+        <input type="text" id="bm-emoji" placeholder="📱" maxlength="2" style="font-size:22px;text-align:center">
+      </div>
+      <div class="modal-fgroup">
+        <div class="modal-label">Nombre de la marca</div>
+        <input type="text" id="bm-name" placeholder="Ej: Chismecito Tech">
+      </div>
+    </div>
+
+    <div class="modal-fgroup">
+      <div class="modal-label">Descripción / nicho</div>
+      <textarea id="bm-desc" rows="2" placeholder="Ej: Canal de tecnología y gadgets en Instagram y TikTok"></textarea>
+    </div>
+
+    <div class="modal-fgroup">
+      <div class="modal-label">Temas sugeridos (uno por línea)</div>
+      <textarea id="bm-topics" rows="3" placeholder="Nuevos smartphones&#10;Tech reviews&#10;Gadgets 2025"></textarea>
+    </div>
+
+    <div class="modal-fgroup">
+      <div class="modal-label">Plataformas</div>
+      <div class="modal-plat-row">
+        <input class="modal-plat-cb" type="checkbox" id="bp-blog" value="blog"><label class="modal-plat-lbl" for="bp-blog">📝 Blog</label>
+        <input class="modal-plat-cb" type="checkbox" id="bp-instagram" value="instagram"><label class="modal-plat-lbl" for="bp-instagram">📸 Instagram</label>
+        <input class="modal-plat-cb" type="checkbox" id="bp-linkedin" value="linkedin"><label class="modal-plat-lbl" for="bp-linkedin">💼 LinkedIn</label>
+        <input class="modal-plat-cb" type="checkbox" id="bp-facebook" value="facebook"><label class="modal-plat-lbl" for="bp-facebook">👥 Facebook</label>
+        <input class="modal-plat-cb" type="checkbox" id="bp-youtube" value="youtube"><label class="modal-plat-lbl" for="bp-youtube">▶️ YouTube</label>
+        <input class="modal-plat-cb" type="checkbox" id="bp-twitter" value="twitter"><label class="modal-plat-lbl" for="bp-twitter">𝕏 Twitter</label>
+        <input class="modal-plat-cb" type="checkbox" id="bp-tiktok" value="tiktok"><label class="modal-plat-lbl" for="bp-tiktok">🎵 TikTok</label>
+        <input class="modal-plat-cb" type="checkbox" id="bp-newsletter" value="newsletter"><label class="modal-plat-lbl" for="bp-newsletter">📧 Newsletter</label>
+      </div>
+    </div>
+
+    <div class="modal-fgroup">
+      <div class="modal-label">Tono por defecto</div>
+      <div class="modal-tone-row">
+        <input class="modal-tone-cb" type="radio" name="bm-tone" id="bt-info" value="informativo y educativo" checked><label class="modal-tone-lbl" for="bt-info">📚 Informativo</label>
+        <input class="modal-tone-cb" type="radio" name="bm-tone" id="bt-pro" value="profesional y de autoridad"><label class="modal-tone-lbl" for="bt-pro">💼 Profesional</label>
+        <input class="modal-tone-cb" type="radio" name="bm-tone" id="bt-ent" value="entretenido y dinámico"><label class="modal-tone-lbl" for="bt-ent">🎉 Entretenido</label>
+        <input class="modal-tone-cb" type="radio" name="bm-tone" id="bt-ins" value="inspirador y motivacional"><label class="modal-tone-lbl" for="bt-ins">✨ Inspirador</label>
+        <input class="modal-tone-cb" type="radio" name="bm-tone" id="bt-conv" value="conversacional y cercano"><label class="modal-tone-lbl" for="bt-conv">💬 Conversacional</label>
+      </div>
+    </div>
+
+    <div class="modal-row">
+      <button class="btn-danger hidden" id="bm-del" onclick="deleteBrand()">Eliminar</button>
+      <div style="flex:1"></div>
+      <button class="btn-sec" onclick="closeBrandModal()">Cancelar</button>
+      <button class="btn-pri" onclick="saveBrand()">Guardar marca</button>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
-<!-- ════════════════════ SCRIPT ════════════════════ -->
 <script>
 'use strict';
 
-// ── Tauri detection ──────────────────────────────────────────
-const isTauri = () => '__TAURI_INTERNALS__' in window;
+// ── Persistent storage (localStorage — works in Tauri and browser) ─────────
+const LS = {
+  KEY:      'cc_apikey',
+  SERPER:   'cc_serper',
+  BRANDS:   'cc_brands',
+  ACTIVE:   'cc_active_brand',
+  MANUAL:   id => 'cc_manual_' + id,
+  MAN_NAME: id => 'cc_manual_name_' + id,
+};
 
-// Use __TAURI_INTERNALS__.invoke — works in Tauri v2 without withGlobalTauri
-// Falls back to window.__TAURI__.core.invoke if withGlobalTauri is set
-function tauriInvoke(cmd, args) {
-  if (window.__TAURI__?.core?.invoke) return window.__TAURI__.core.invoke(cmd, args);
-  return window.__TAURI_INTERNALS__.invoke(cmd, args);
-}
-
-// ── API key (Tauri → keychain; web → localStorage) ───────────
-const LS_KEY = 'contentcraft_apikey';
-let _cachedKey = '';
-
-async function loadKey() {
-  if (isTauri()) {
-    try {
-      const k = await tauriInvoke('get_api_key', { provider: 'anthropic' });
-      _cachedKey = k || '';
-    } catch {
-      _cachedKey = '';
-    }
-  } else {
-    _cachedKey = localStorage.getItem(LS_KEY) || '';
-  }
-}
-
-function getKey() { return _cachedKey; }
-
-async function persistKey(k) {
-  if (isTauri()) {
-    if (k) await tauriInvoke('set_api_key', { provider: 'anthropic', key: k });
-    else await tauriInvoke('delete_api_key', { provider: 'anthropic' }).catch(() => {});
-  } else {
-    if (k) localStorage.setItem(LS_KEY, k);
-    else localStorage.removeItem(LS_KEY);
-  }
-  _cachedKey = k;
-}
+// ── API Key ───────────────────────────────────────────────────────────────
+function getKey()        { return localStorage.getItem(LS.KEY) || ''; }
+function setKey(k)       { if (k) localStorage.setItem(LS.KEY, k); else localStorage.removeItem(LS.KEY); }
 
 function openKeyModal() {
   document.getElementById('key-in').value = getKey();
-  if (isTauri()) {
-    document.getElementById('key-modal-desc').textContent =
-      'Tu key se guarda en el llavero del sistema operativo (Keychain / Credential Manager / libsecret). Nunca se escribe en disco en texto plano.';
-    document.getElementById('keychain-badge').classList.remove('hidden');
-  }
   document.getElementById('key-modal').classList.remove('hidden');
   setTimeout(() => document.getElementById('key-in').focus(), 50);
 }
-
 function closeKeyModal() { document.getElementById('key-modal').classList.add('hidden'); }
 
-async function saveKey() {
+function saveKey() {
   const k = document.getElementById('key-in').value.trim();
-  if (!k) return;
-  try {
-    await persistKey(k);
-    syncKeyUI();
-    closeKeyModal();
-    toast('✓ API Key guardada' + (isTauri() ? ' en el llavero del sistema' : ''));
-  } catch (e) {
-    toast('Error al guardar: ' + e.message);
-  }
+  if (!k) { toast('⚠️ Ingresa tu API Key'); return; }
+  setKey(k);
+  syncKeyUI();
+  closeKeyModal();
+  toast('✓ API Key guardada');
 }
 
 function syncKeyUI() {
@@ -604,7 +620,264 @@ function syncKeyUI() {
   document.getElementById('key-lbl').textContent = ok ? 'API Key ✓' : 'Configurar API Key';
 }
 
-// ── Days sync ─────────────────────────────────────────────────
+// ── Brands ────────────────────────────────────────────────────────────────
+const DEFAULT_BRANDS = [
+  {
+    id: 'technically-elegant', name: 'Technically Elegant', emoji: '💎',
+    description: 'Moda y estilo corporativo — imagen ejecutiva para mujeres líderes en LATAM',
+    platforms: ['instagram', 'linkedin', 'newsletter'], tone: 'profesional y de autoridad',
+    topics: ['Quiet luxury tendencias otoño 2025','Executive presence mujeres líderes LATAM','Capsule wardrobe corporativa 2025','Análisis de temporada de color personal','Etiqueta corporativa y soft skills 2025','Semana de la moda Milano París septiembre 2025','Body language y confianza en presentaciones'],
+  },
+  {
+    id: 'upgrade-yourself', name: 'Upgrade Yourself', emoji: '🚀',
+    description: 'Desarrollo personal y profesional — crecimiento, productividad y mentalidad',
+    platforms: ['instagram', 'youtube', 'newsletter'], tone: 'inspirador y motivacional',
+    topics: ['Productividad con IA','Habits que cambian tu carrera','Morning routines de líderes','Mentalidad de crecimiento 2025','Skills del futuro'],
+  },
+  {
+    id: 'manuales-imagen', name: 'Manuales de Imagen', emoji: '🖼',
+    description: 'Consultoría de imagen y branding personal — manuales y guías visuales',
+    platforms: ['instagram', 'linkedin', 'blog'], tone: 'profesional y de autoridad',
+    topics: ['Paleta de colores corporativa','Guía de estilo ejecutivo','Personal branding visual','Fotografía profesional para redes','Color analysis 2025'],
+  },
+  {
+    id: 'open-roads', name: 'Open Roads Open Source', emoji: '🛣️',
+    description: 'Viajes en carretera y software open source — aventuras y código abierto',
+    platforms: ['youtube', 'instagram', 'blog'], tone: 'conversacional y cercano',
+    topics: ['Viajes en carretera LATAM','Software open source 2025','Proyectos open source para viajar','Road trip gadgets','Comunidad tech en movimiento'],
+  },
+  {
+    id: 'chismecito-tech', name: 'Chismecito Tech', emoji: '📱',
+    description: 'Gadgets, tecnología y chismes tech — reseñas y novedades en Instagram y TikTok',
+    platforms: ['instagram', 'tiktok', 'youtube'], tone: 'entretenido y dinámico',
+    topics: ['Nuevos smartphones 2025','Gadgets que no sabías que necesitabas','Tech reviews honestos','Lanzamientos de tecnología','Apps y software del momento'],
+  },
+  {
+    id: 'sofy-romero', name: 'Sofy Romero', emoji: '📚',
+    description: 'Personal brand — libros infantiles de IA/tecnología (Las Aventuras de Dato), speaker y causas filantrópicas',
+    platforms: ['instagram', 'facebook', 'tiktok', 'newsletter', 'youtube'], tone: 'inspirador y motivacional',
+    topics: ['Las Aventuras de Dato','Inteligencia Artificial para niños','Educación tecnológica en LATAM','Eventos de tecnología','Filantropía y tech'],
+  },
+];
+
+function getBrands() {
+  try { return JSON.parse(localStorage.getItem(LS.BRANDS)) || null; } catch { return null; }
+}
+function saveBrands(b) { localStorage.setItem(LS.BRANDS, JSON.stringify(b)); }
+function initBrands()  { if (!getBrands()) saveBrands(DEFAULT_BRANDS); }
+
+let _activeBrandId = localStorage.getItem(LS.ACTIVE) || null;
+function getActiveBrand() {
+  return (getBrands() || []).find(b => b.id === _activeBrandId) || null;
+}
+
+function renderBrands() {
+  const brands = getBrands() || [];
+  const row = document.getElementById('brand-row');
+  // Keep the "+ Nueva marca" button at end
+  const addBtn = row.querySelector('.brand-add');
+  row.innerHTML = '';
+  brands.forEach(b => {
+    const chip = document.createElement('button');
+    chip.className = 'brand-chip' + (b.id === _activeBrandId ? ' active' : '');
+    chip.innerHTML = `<span class="brand-chip-icon">${b.emoji}</span>${escHtml(b.name)}`;
+    chip.addEventListener('click', () => {
+      if (b.id === _activeBrandId) {
+        // Right-click or second click → open edit modal
+        openBrandModal(b.id);
+      } else {
+        activateBrand(b.id);
+      }
+    });
+    chip.addEventListener('dblclick', e => { e.stopPropagation(); openBrandModal(b.id); });
+    chip.addEventListener('contextmenu', e => { e.preventDefault(); openBrandModal(b.id); });
+    row.appendChild(chip);
+  });
+  row.appendChild(addBtn || (() => {
+    const btn = document.createElement('button');
+    btn.className = 'brand-add';
+    btn.textContent = '+ Nueva marca';
+    btn.onclick = () => openBrandModal(null);
+    return btn;
+  })());
+}
+
+function activateBrand(id) {
+  _activeBrandId = id;
+  localStorage.setItem(LS.ACTIVE, id);
+  renderBrands();
+  applyBrandToForm();
+  renderManual();
+}
+
+function applyBrandToForm() {
+  const b = getActiveBrand();
+
+  // Topic chips
+  const wrap = document.getElementById('topic-wrap');
+  wrap.innerHTML = '';
+  if (b && (b.topics || []).length) {
+    (b.topics || []).forEach(t => {
+      const chip = document.createElement('button');
+      chip.className = 'topic-chip';
+      chip.textContent = t;
+      chip.onclick = () => { document.getElementById('topic-in').value = t; };
+      wrap.appendChild(chip);
+    });
+    wrap.classList.remove('hidden');
+  } else {
+    wrap.classList.add('hidden');
+  }
+
+  if (!b) return;
+
+  // Platforms
+  document.querySelectorAll('.plat-cb').forEach(cb => {
+    cb.checked = (b.platforms || []).includes(cb.value);
+  });
+
+  // Tone
+  const toneR = document.querySelector(`input[name=tone][value="${b.tone}"]`);
+  if (toneR) toneR.checked = true;
+}
+
+// ── Brand modal ───────────────────────────────────────────────────────────
+let _editingBrandId = null;
+
+function openBrandModal(id) {
+  _editingBrandId = id;
+  const b = id ? (getBrands() || []).find(x => x.id === id) : null;
+  document.getElementById('bm-title').textContent = b ? 'Editar marca' : 'Nueva marca';
+  document.getElementById('bm-emoji').value  = b ? b.emoji : '';
+  document.getElementById('bm-name').value   = b ? b.name : '';
+  document.getElementById('bm-desc').value   = b ? b.description : '';
+  document.getElementById('bm-topics').value = b ? (b.topics || []).join('\n') : '';
+  document.querySelectorAll('.modal-plat-cb').forEach(cb => {
+    cb.checked = b ? (b.platforms || []).includes(cb.value) : false;
+  });
+  const tone = b ? b.tone : 'informativo y educativo';
+  const tr = document.querySelector(`input[name=bm-tone][value="${tone}"]`);
+  if (tr) tr.checked = true;
+  document.getElementById('bm-del').classList.toggle('hidden', !b);
+  document.getElementById('brand-modal').classList.remove('hidden');
+  setTimeout(() => document.getElementById('bm-name').focus(), 50);
+}
+
+function closeBrandModal() { document.getElementById('brand-modal').classList.add('hidden'); }
+
+function saveBrand() {
+  const name = document.getElementById('bm-name').value.trim();
+  if (!name) { toast('⚠️ El nombre es requerido'); return; }
+  const id = _editingBrandId || 'b-' + Date.now();
+  const brand = {
+    id,
+    name,
+    emoji: document.getElementById('bm-emoji').value.trim() || '✦',
+    description: document.getElementById('bm-desc').value.trim(),
+    platforms: [...document.querySelectorAll('.modal-plat-cb:checked')].map(c => c.value),
+    tone: document.querySelector('input[name=bm-tone]:checked')?.value || 'informativo y educativo',
+    topics: document.getElementById('bm-topics').value.split('\n').map(s => s.trim()).filter(Boolean),
+  };
+  const brands = getBrands() || [];
+  const idx = brands.findIndex(b => b.id === id);
+  if (idx >= 0) brands[idx] = brand; else brands.push(brand);
+  saveBrands(brands);
+  closeBrandModal();
+  renderBrands();
+  if (_activeBrandId === id) applyBrandToForm();
+  toast('✓ Marca guardada');
+}
+
+function deleteBrand() {
+  if (!_editingBrandId) return;
+  const brands = (getBrands() || []).filter(b => b.id !== _editingBrandId);
+  saveBrands(brands);
+  if (_activeBrandId === _editingBrandId) {
+    _activeBrandId = null;
+    localStorage.removeItem(LS.ACTIVE);
+  }
+  closeBrandModal();
+  renderBrands();
+  applyBrandToForm();
+  renderManual();
+  toast('Marca eliminada');
+}
+
+// ── Manual de marca ───────────────────────────────────────────────────────
+function renderManual() {
+  const b = getActiveBrand();
+  const filenameEl = document.getElementById('manual-filename');
+  const noteEl     = document.getElementById('manual-note');
+  const delBtn     = document.getElementById('manual-del');
+  const uploadBtn  = document.querySelector('.manual-upload-btn');
+
+  if (!b) {
+    filenameEl.textContent = 'Selecciona una marca primero';
+    filenameEl.style.color = 'var(--muted)';
+    noteEl.textContent = '';
+    delBtn.classList.add('hidden');
+    uploadBtn.disabled = true;
+    uploadBtn.style.opacity = '.5';
+    return;
+  }
+
+  uploadBtn.disabled = false;
+  uploadBtn.style.opacity = '';
+  const content = localStorage.getItem(LS.MANUAL(b.id)) || '';
+  const name    = localStorage.getItem(LS.MAN_NAME(b.id)) || '';
+
+  if (content) {
+    filenameEl.textContent = name;
+    filenameEl.style.color = 'var(--green)';
+    noteEl.textContent = Math.round(content.length / 1024) + ' KB cargados';
+    delBtn.classList.remove('hidden');
+  } else {
+    filenameEl.textContent = 'Ningún archivo cargado';
+    filenameEl.style.color = 'var(--muted)';
+    noteEl.textContent = 'Acepta .txt · .md';
+    delBtn.classList.add('hidden');
+  }
+}
+
+function triggerManualUpload() {
+  if (!getActiveBrand()) { toast('⚠️ Selecciona una marca primero'); return; }
+  document.getElementById('manual-file').click();
+}
+
+function handleManualFile(e) {
+  const file = e.target.files[0];
+  const b = getActiveBrand();
+  if (!file || !b) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    localStorage.setItem(LS.MANUAL(b.id), ev.target.result);
+    localStorage.setItem(LS.MAN_NAME(b.id), file.name);
+    renderManual();
+    toast('✓ Manual de marca cargado');
+  };
+  reader.readAsText(file);
+  e.target.value = '';
+}
+
+function removeManual() {
+  const b = getActiveBrand();
+  if (!b) return;
+  localStorage.removeItem(LS.MANUAL(b.id));
+  localStorage.removeItem(LS.MAN_NAME(b.id));
+  renderManual();
+  toast('Manual eliminado');
+}
+
+function getManualContext() {
+  const b = getActiveBrand();
+  if (!b) return '';
+  const content = localStorage.getItem(LS.MANUAL(b.id)) || '';
+  let ctx = `Estás creando contenido para: ${b.name} ${b.emoji}\nDescripción: ${b.description}`;
+  if (content) ctx += `\n\nManual de marca:\n${content.slice(0, 5000)}`;
+  return ctx;
+}
+
+// ── Days sync ─────────────────────────────────────────────────────────────
 function syncDays(src) {
   const v = parseInt(src === 'range'
     ? document.getElementById('days-range').value
@@ -614,52 +887,39 @@ function syncDays(src) {
   document.getElementById('days-lbl').textContent = v;
 }
 
-// ── Toast ─────────────────────────────────────────────────────
-let toastTimer;
+// ── Toast ─────────────────────────────────────────────────────────────────
+let _toastTimer;
 function toast(msg, ms = 2800) {
   const el = document.getElementById('toast');
   el.textContent = msg;
   el.classList.add('show');
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => el.classList.remove('show'), ms);
+  clearTimeout(_toastTimer);
+  _toastTimer = setTimeout(() => el.classList.remove('show'), ms);
 }
 
-// ── Copy to clipboard ─────────────────────────────────────────
+// ── Copy ──────────────────────────────────────────────────────────────────
 function copyText(id, btn) {
-  const txt = document.getElementById(id).textContent;
-  navigator.clipboard.writeText(txt).then(() => {
-    btn.textContent = '✓ Copiado';
-    btn.classList.add('ok');
+  navigator.clipboard.writeText(document.getElementById(id).textContent).then(() => {
+    btn.textContent = '✓ Copiado'; btn.classList.add('ok');
     setTimeout(() => { btn.textContent = '⎘ Copiar'; btn.classList.remove('ok'); }, 2000);
-  }).catch(() => toast('No se pudo copiar al portapapeles'));
+  }).catch(() => toast('No se pudo copiar'));
 }
 
-// ── Claude API call ───────────────────────────────────────────
+// ── Claude API ────────────────────────────────────────────────────────────
 async function callClaude({ messages, tools, system, maxTokens = 8192 }) {
   const apiKey = getKey();
   if (!apiKey) throw new Error('Sin API Key. Haz clic en "Configurar API Key".');
-
   const model = document.getElementById('model-sel').value;
-
-  const payload = {
-    model,
-    max_tokens: maxTokens,
-    messages,
-    ...(system && { system }),
-    ...(tools && tools.length && { tools }),
-  };
-
+  const payload = { model, max_tokens: maxTokens, messages,
+    ...(system && { system }), ...(tools && tools.length && { tools }) };
   const res = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
     headers: {
-      'x-api-key': apiKey,
-      'anthropic-version': '2023-06-01',
-      'anthropic-dangerous-direct-browser-calls': 'true',
-      'content-type': 'application/json',
+      'x-api-key': apiKey, 'anthropic-version': '2023-06-01',
+      'anthropic-dangerous-direct-browser-calls': 'true', 'content-type': 'application/json',
     },
     body: JSON.stringify(payload),
   });
-
   if (!res.ok) {
     let msg = `HTTP ${res.status}`;
     try { const e = await res.json(); msg = e.error?.message || msg; } catch {}
@@ -667,47 +927,32 @@ async function callClaude({ messages, tools, system, maxTokens = 8192 }) {
   }
   return res.json();
 }
-
 function extractText(resp) {
   return (resp.content || []).filter(b => b.type === 'text').map(b => b.text).join('\n');
 }
 
-// ── Tool-use loop ─────────────────────────────────────────────
+// ── Tool loop ─────────────────────────────────────────────────────────────
 async function runWithTools(initMessages, tools, system) {
   const msgs = [...initMessages];
-
   for (let i = 0; i < 8; i++) {
     const resp = await callClaude({ messages: msgs, tools, system });
-
-    if (resp.stop_reason !== 'tool_use') {
-      return extractText(resp);
-    }
-
+    if (resp.stop_reason !== 'tool_use') return extractText(resp);
     msgs.push({ role: 'assistant', content: resp.content });
-
     const results = [];
     for (const blk of resp.content) {
       if (blk.type !== 'tool_use') continue;
-
-      let content = '';
-      if (blk.name === 'web_search') {
-        content = await execSearch(blk.input.query);
-      }
-
+      let content = blk.name === 'web_search' ? await execSearch(blk.input.query) : '';
       results.push({ type: 'tool_result', tool_use_id: blk.id, content: content || 'No results.' });
     }
     msgs.push({ role: 'user', content: results });
   }
-
-  const fallback = await callClaude({ messages: msgs, system });
-  return extractText(fallback);
+  return extractText(await callClaude({ messages: msgs, system }));
 }
 
-// ── Web search via Serper.dev (optional) ─────────────────────
+// ── Web search ────────────────────────────────────────────────────────────
 async function execSearch(query) {
   const serperKey = document.getElementById('serper-in').value.trim()
-    || localStorage.getItem('contentcraft_serper') || '';
-
+    || localStorage.getItem(LS.SERPER) || '';
   if (serperKey) {
     try {
       const res = await fetch('https://google.serper.dev/search', {
@@ -716,21 +961,16 @@ async function execSearch(query) {
         body: JSON.stringify({ q: query, gl: 'us', hl: 'es', num: 8 }),
       });
       if (res.ok) {
-        const data = await res.json();
+        const d = await res.json();
         const lines = [];
-        if (data.answerBox?.snippet) lines.push(`Respuesta: ${data.answerBox.snippet}`);
-        (data.organic || []).slice(0, 6).forEach(r => {
-          lines.push(`• ${r.title}\n  ${r.snippet || ''}\n  ${r.link}`);
-        });
+        if (d.answerBox?.snippet) lines.push(`Respuesta: ${d.answerBox.snippet}`);
+        (d.organic || []).slice(0, 6).forEach(r => lines.push(`• ${r.title}\n  ${r.snippet || ''}\n  ${r.link}`));
         if (lines.length) return lines.join('\n\n');
       }
     } catch {}
   }
-
   try {
-    const r = await fetch(
-      `https://api.duckduckgo.com/?q=${encodeURIComponent(query)}&format=json&no_html=1&skip_disambig=1`,
-    );
+    const r = await fetch(`https://api.duckduckgo.com/?q=${encodeURIComponent(query)}&format=json&no_html=1&skip_disambig=1`);
     if (r.ok) {
       const d = await r.json();
       const parts = [];
@@ -739,277 +979,137 @@ async function execSearch(query) {
       if (parts.length) return parts.join('\n');
     }
   } catch {}
-
-  return `Búsqueda: "${query}" — sin resultados en tiempo real disponibles. Usando conocimiento del modelo.`;
+  return `Búsqueda: "${query}" — sin resultados en tiempo real. Usando conocimiento del modelo.`;
 }
 
-// ── Research phase ────────────────────────────────────────────
-async function doResearch(topic, days, direction, lang) {
-  const dirText = direction === 'past'
-    ? `los últimos ${days} días`
-    : `los próximos ${days} días`;
-
-  const today = new Date().toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' });
-
-  const system = `Eres un investigador y analista de contenido experto. La fecha de hoy es ${today}. Proporciona información estructurada, concreta y útil para crear contenido de alto impacto.`;
-
+// ── Research ──────────────────────────────────────────────────────────────
+async function doResearch(topic, days, direction, lang, brandCtx) {
+  const dirText = direction === 'past' ? `los últimos ${days} días` : `los próximos ${days} días`;
+  const today = new Date().toLocaleDateString('es-ES', { year:'numeric', month:'long', day:'numeric' });
+  const system = `Eres un investigador y analista de contenido experto. La fecha de hoy es ${today}.${brandCtx ? '\n\n' + brandCtx : ''} Proporciona información estructurada, concreta y útil para crear contenido de alto impacto.`;
   const prompt = `Investiga el siguiente tema para crear contenido: "${topic}"
 
 Enfoque: ${direction === 'past' ? `¿Qué ha pasado en ${dirText}?` : `¿Qué está previsto o pasará en ${dirText}?`}
 
-Entrega un informe con estas secciones:
-
 ## RESUMEN EJECUTIVO
-2-3 oraciones que capturen lo esencial del momento actual.
+2-3 oraciones clave.
 
 ## EVENTOS Y NOTICIAS PRINCIPALES
-5-8 eventos o anuncios recientes/próximos con fechas aproximadas cuando sea posible.
+5-8 eventos recientes/próximos con fechas.
 
 ## TENDENCIAS CLAVE
-3-5 tendencias o patrones relevantes para este tema ahora.
+3-5 tendencias relevantes ahora.
 
 ## DATOS Y CIFRAS DESTACADOS
-Estadísticas, porcentajes, nombres clave, citas o números concretos que den autoridad al contenido.
+Estadísticas, nombres clave, citas o números concretos.
 
 ## ÁNGULOS ÚNICOS
-3-4 perspectivas o ángulos poco explorados que diferencien el contenido.
+3-4 perspectivas poco exploradas.
 
 ## AUDIENCIA Y MOTIVACIONES
-Quiénes son los interesados en este tema y qué les mueve.
+Quiénes son los interesados y qué les mueve.
 
 ## KEYWORDS Y HASHTAGS BASE
 12-15 términos SEO y hashtags relevantes.
 
-Idioma de respuesta: ${lang}`;
+Idioma: ${lang}`;
 
-  const webSearchTool = {
+  return runWithTools([{ role: 'user', content: prompt }], [{
     name: 'web_search',
-    description: 'Busca en internet para obtener noticias y datos actuales sobre el tema.',
-    input_schema: {
-      type: 'object',
-      properties: { query: { type: 'string', description: 'La consulta de búsqueda' } },
-      required: ['query'],
-    },
-  };
-
-  return runWithTools([{ role: 'user', content: prompt }], [webSearchTool], system);
+    description: 'Busca en internet para obtener noticias y datos actuales.',
+    input_schema: { type: 'object', properties: { query: { type: 'string' } }, required: ['query'] },
+  }], system);
 }
 
-// ── Content generation phase ──────────────────────────────────
+// ── Content generation ────────────────────────────────────────────────────
 const PLATFORM_PROMPTS = {
-  blog: `<platform id="blog">
-Genera un artículo de blog completo:
-- TÍTULO SEO (máx. 65 caracteres, con keyword principal)
-- META DESCRIPCIÓN (150-160 caracteres con CTA)
-- INTRODUCCIÓN (hook potente, 2-3 párrafos)
-- CUERPO (5-6 secciones con subtítulos H2, ejemplos, datos de la investigación)
-- CONCLUSIÓN + CTA claro
-- TAGS SEO (8-10 tags)
-Extensión: 900-1200 palabras
-</platform>`,
-
-  instagram: `<platform id="instagram">
-Genera:
-- CONCEPTO VISUAL: Descripción detallada del arte para el post/carrusel (colores, composición, estilo, tipografía)
-- CAPTION: Hook impactante en 1ª línea + cuerpo con storytelling + CTA + emojis estratégicos
-- 30 HASHTAGS: mix de populares, nicho y de marca
-- 3 IDEAS DE STORIES: secuencia slide 1 → 2 → 3 con texto y visual de cada slide
-- CONCEPTO REEL: gancho primeros 3 s, estructura, audio sugerido
-- PREGUNTA DE INTERACCIÓN para maximizar comentarios
-</platform>`,
-
-  linkedin: `<platform id="linkedin">
-Genera:
-- HOOK (primeras 2 líneas antes del "ver más", máx. 150 caracteres, genera curiosidad)
-- CUERPO (insights de valor, saltos de línea para escaneabilidad, storytelling o datos)
-- 3-5 PUNTOS CLAVE en bullet points
-- CTA específico para LinkedIn (comentar, conectar, guardar)
-- 5 HASHTAGS LinkedIn
-- IDEA DE ENCUESTA LinkedIn con 4 opciones de respuesta
-</platform>`,
-
-  facebook: `<platform id="facebook">
-Genera:
-- POST PRINCIPAL (texto conversacional, óptimo para alcance orgánico, 150-300 palabras)
-- DESCRIPCIÓN VISUAL (qué imagen o video acompañar y por qué)
-- PREGUNTA DE ENGAGEMENT (para generar comentarios y debate)
-- CTA claro
-- VARIANTE PARA GRUPOS (versión adaptada para compartir en grupos relevantes)
-</platform>`,
-
-  youtube: `<platform id="youtube">
-Genera:
-- TÍTULO A (versión emocional/curiosidad, máx. 70 caracteres)
-- TÍTULO B (versión SEO/informativa, máx. 70 caracteres)
-- DESCRIPCIÓN COMPLETA (párrafo de hook, índice con timestamps aproximados, CTA a suscribirse, hashtags al final)
-- 18 TAGS para búsqueda
-- THUMBNAIL CONCEPT (fondo, texto overlay, imagen/elemento visual, paleta de colores, emoción que transmite)
-- GUIÓN / PUNTOS DEL VIDEO: intro con hook (0-30 s), 5-7 secciones principales, outro con CTA
-- POST DE COMUNIDAD para publicar al lanzar el video
-</platform>`,
-
-  twitter: `<platform id="twitter">
-Genera:
-- TWEET ÚNICO (máx. 280 caracteres, punch directo)
-- HILO COMPLETO (10-12 tweets numerados 1/12, 2/12... que cuenten una historia o enseñen algo)
-- TWEET DE ENGAGEMENT (pregunta o encuesta para interacción)
-- TWEET "OPINIÓN CALIENTE" (perspectiva provocadora que genere debate respetuoso)
-</platform>`,
-
-  tiktok: `<platform id="tiktok">
-Genera:
-- CONCEPTO DE VIDEO (idea principal, duración recomendada, formato: tutorial/story/trend)
-- HOOK PRIMEROS 3 SEGUNDOS (qué decir/mostrar para retener)
-- ESTRUCTURA DEL VIDEO (puntos clave con timing aproximado)
-- TEXTO OVERLAY (textos en pantalla a lo largo del video)
-- AUDIO SUGERIDO (tipo de música o sonido tendencia)
-- CAPTION + 7 HASHTAGS TikTok
-- IDEA DE DUETO o RESPUESTA que invite a la comunidad
-</platform>`,
-
-  newsletter: `<platform id="newsletter">
-Genera:
-- ASUNTO PRINCIPAL (máx. 50 caracteres, garantiza apertura)
-- ASUNTO A/B (variante para testing)
-- PRE-ENCABEZADO (40-90 caracteres, texto de vista previa)
-- INTRODUCCIÓN PERSONALIZADA (saludo + gancho)
-- CUERPO PRINCIPAL (secciones claras, valor concreto, datos de la investigación)
-- SECCIÓN DE RECURSOS (3-5 links o recursos adicionales)
-- CTA PRINCIPAL con texto del botón/link
-- CIERRE + PD con tease del próximo envío
-</platform>`,
+  blog: `<platform id="blog">Blog: TÍTULO SEO · META DESCRIPCIÓN · INTRODUCCIÓN · CUERPO (5-6 secciones H2) · CONCLUSIÓN + CTA · TAGS SEO. 900-1200 palabras.</platform>`,
+  instagram: `<platform id="instagram">Instagram: CONCEPTO VISUAL · CAPTION (hook + storytelling + CTA + emojis) · 30 HASHTAGS · 3 IDEAS STORIES · CONCEPTO REEL · PREGUNTA DE INTERACCIÓN</platform>`,
+  linkedin: `<platform id="linkedin">LinkedIn: HOOK (150 chars) · CUERPO (valor + datos) · 3-5 PUNTOS CLAVE · CTA · 5 HASHTAGS · IDEA DE ENCUESTA con 4 opciones</platform>`,
+  facebook: `<platform id="facebook">Facebook: POST PRINCIPAL (150-300 palabras) · DESCRIPCIÓN VISUAL · PREGUNTA DE ENGAGEMENT · CTA · VARIANTE PARA GRUPOS</platform>`,
+  youtube: `<platform id="youtube">YouTube: TÍTULO A (emocional) · TÍTULO B (SEO) · DESCRIPCIÓN COMPLETA · 18 TAGS · THUMBNAIL CONCEPT · GUIÓN (intro 0-30s, 5-7 secciones, outro) · POST DE COMUNIDAD</platform>`,
+  twitter: `<platform id="twitter">Twitter/X: TWEET ÚNICO (280 chars) · HILO COMPLETO (10-12 tweets) · TWEET DE ENGAGEMENT · TWEET OPINIÓN CALIENTE</platform>`,
+  tiktok: `<platform id="tiktok">TikTok: CONCEPTO VIDEO · HOOK 3 SEGUNDOS · ESTRUCTURA + TIMING · TEXTO OVERLAY · AUDIO SUGERIDO · CAPTION + 7 HASHTAGS · IDEA DE DUETO</platform>`,
+  newsletter: `<platform id="newsletter">Newsletter: ASUNTO PRINCIPAL · ASUNTO A/B · PRE-ENCABEZADO · INTRODUCCIÓN · CUERPO PRINCIPAL · SECCIÓN RECURSOS · CTA PRINCIPAL · CIERRE + PD</platform>`,
 };
 
-async function generateContent(topic, research, platforms, tone, lang) {
-  const platformBlocks = platforms.map(p => PLATFORM_PROMPTS[p] || '').filter(Boolean).join('\n\n');
-
-  const system = `Eres un experto en marketing de contenidos con 10+ años de experiencia creando contenido viral en ${lang}. Conoces los algoritmos y la psicología del usuario de cada plataforma. Produces contenido auténtico, específico y accionable.`;
-
-  const prompt = `Basándote en esta investigación, genera contenido en ${lang} con tono ${tone}:
-
-## INVESTIGACIÓN
-${research}
-
-## TEMA: ${topic}
-
-## INSTRUCCIONES
-
-Usa EXACTAMENTE el formato XML indicado para cada plataforma. El contenido debe:
-- Usar datos y ejemplos concretos de la investigación
-- Estar 100% optimizado para cada plataforma
-- Sonar auténtico, no genérico
-- Incluir emojis donde corresponda por plataforma
-- Respetar el tono "${tone}" de manera consistente
-
-${platformBlocks}`;
-
+async function generateContent(topic, research, platforms, tone, lang, brandCtx) {
+  const blocks = platforms.map(p => PLATFORM_PROMPTS[p] || '').filter(Boolean).join('\n\n');
+  const system = `Eres experto en marketing de contenidos con 10+ años en ${lang}.${brandCtx ? '\n\n' + brandCtx : ''} Produces contenido auténtico, específico y accionable.`;
+  const prompt = `Genera contenido en ${lang} con tono ${tone} basado en esta investigación:\n\n## INVESTIGACIÓN\n${research}\n\n## TEMA: ${topic}\n\nUsa el formato XML exacto. Contenido auténtico, optimizado por plataforma, con datos de la investigación.\n\n${blocks}`;
   const resp = await callClaude({ messages: [{ role: 'user', content: prompt }], system, maxTokens: 16000 });
   return extractText(resp);
 }
 
-// ── Parse platform sections ───────────────────────────────────
 function parsePlatforms(fullText, platforms) {
   const out = {};
   for (const p of platforms) {
-    const rx = new RegExp(`<platform id=["']${p}["']>([\\s\\S]*?)<\\/platform>`, 'i');
-    const m = fullText.match(rx);
+    const m = fullText.match(new RegExp(`<platform id=["']${p}["']>([\\s\\S]*?)<\\/platform>`, 'i'));
     out[p] = m ? m[1].trim() : fullText;
   }
   return out;
 }
 
 const PLAT = {
-  blog:       { label: 'Blog',       icon: '📝' },
-  instagram:  { label: 'Instagram',  icon: '📸' },
-  linkedin:   { label: 'LinkedIn',   icon: '💼' },
-  facebook:   { label: 'Facebook',   icon: '👥' },
-  youtube:    { label: 'YouTube',    icon: '▶️' },
-  twitter:    { label: 'X/Twitter',  icon: '𝕏'  },
-  tiktok:     { label: 'TikTok',     icon: '🎵' },
-  newsletter: { label: 'Newsletter', icon: '📧' },
+  blog: { label:'Blog', icon:'📝' }, instagram: { label:'Instagram', icon:'📸' },
+  linkedin: { label:'LinkedIn', icon:'💼' }, facebook: { label:'Facebook', icon:'👥' },
+  youtube: { label:'YouTube', icon:'▶️' }, twitter: { label:'X/Twitter', icon:'𝕏' },
+  tiktok: { label:'TikTok', icon:'🎵' }, newsletter: { label:'Newsletter', icon:'📧' },
 };
 
-// ── Render results ────────────────────────────────────────────
 function renderResults(research, sections, platforms) {
   document.getElementById('res-box').textContent = research;
   document.getElementById('res-meta').textContent =
     new Date().toLocaleDateString('es-ES', { day:'2-digit', month:'short', year:'numeric' });
-
   const tabsBar = document.getElementById('tabs-bar');
   const tabsContent = document.getElementById('tabs-content');
-  tabsBar.innerHTML = '';
-  tabsContent.innerHTML = '';
-
+  tabsBar.innerHTML = ''; tabsContent.innerHTML = '';
   platforms.forEach((p, i) => {
     const cfg = PLAT[p] || { label: p, icon: '📄' };
-    const content = sections[p] || '';
-
     const btn = document.createElement('button');
     btn.className = `tab-btn${i === 0 ? ' active' : ''}`;
     btn.id = `tab-${p}`;
     btn.innerHTML = `${cfg.icon} ${cfg.label}`;
     btn.onclick = () => switchTab(p, platforms);
     tabsBar.appendChild(btn);
-
     const textId = `txt-${p}`;
     const sec = document.createElement('div');
     sec.className = `plt-section${i === 0 ? ' active' : ''}`;
     sec.id = `sec-${p}`;
-    sec.innerHTML = `
-      <div class="cblock">
-        <div class="cblock-head">
-          ${cfg.icon} ${cfg.label}
-          <button class="copy-btn" onclick="copyText('${textId}',this)">⎘ Copiar</button>
-        </div>
-        <div class="cblock-body" id="${textId}">${escHtml(content)}</div>
-      </div>`;
+    sec.innerHTML = `<div class="cblock"><div class="cblock-head">${cfg.icon} ${cfg.label}<button class="copy-btn" onclick="copyText('${textId}',this)">⎘ Copiar</button></div><div class="cblock-body" id="${textId}">${escHtml(sections[p] || '')}</div></div>`;
     tabsContent.appendChild(sec);
   });
-
   document.getElementById('results-card').classList.remove('hidden');
   document.getElementById('results-card').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
-
 function switchTab(active, platforms) {
   platforms.forEach(p => {
     document.getElementById(`tab-${p}`)?.classList.toggle('active', p === active);
     document.getElementById(`sec-${p}`)?.classList.toggle('active', p === active);
   });
 }
+function escHtml(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
-function escHtml(s) {
-  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-}
-
-// ── Step UI ───────────────────────────────────────────────────
 function setStep(id, state, detail) {
   const step = document.getElementById(`s-${id}`);
   const num  = document.getElementById(`sn-${id}`);
   step.className = `step ${state}`;
   if (state === 'active') {
     num.innerHTML = `<div class="spin"></div>`;
-    if (detail) {
-      const d = document.getElementById(`s-${id}-detail`);
-      if (d) d.textContent = detail;
-    }
-  } else if (state === 'done') {
-    num.textContent = '✓';
-  }
+    const d = document.getElementById(`s-${id}-detail`);
+    if (d && detail) d.textContent = detail;
+  } else if (state === 'done') num.textContent = '✓';
 }
-
 function showError(msg) {
   const el = document.getElementById('err-banner');
-  el.textContent = msg;
-  el.classList.remove('hidden');
+  el.textContent = msg; el.classList.remove('hidden');
 }
 
-// ── Main flow ─────────────────────────────────────────────────
+// ── Main flow ─────────────────────────────────────────────────────────────
 async function startGeneration() {
   if (!getKey()) { openKeyModal(); toast('⚠️ Configura tu API Key primero'); return; }
-
   const topic = document.getElementById('topic-in').value.trim();
   if (!topic) { toast('⚠️ Ingresa un tema'); document.getElementById('topic-in').focus(); return; }
-
   const platforms = [...document.querySelectorAll('.plat-cb:checked')].map(el => el.value);
   if (!platforms.length) { toast('⚠️ Selecciona al menos una plataforma'); return; }
 
@@ -1017,9 +1117,10 @@ async function startGeneration() {
   const direction = document.querySelector('input[name=dir]:checked').value;
   const lang      = document.getElementById('lang-sel').value;
   const tone      = document.querySelector('input[name=tone]:checked').value;
+  const brandCtx  = getManualContext();
 
   const serperKey = document.getElementById('serper-in').value.trim();
-  if (serperKey) localStorage.setItem('contentcraft_serper', serperKey);
+  if (serperKey) localStorage.setItem(LS.SERPER, serperKey);
 
   document.getElementById('gen-btn').disabled = true;
   document.getElementById('gen-btn').innerHTML = '<div class="spin"></div> Procesando...';
@@ -1027,35 +1128,18 @@ async function startGeneration() {
   document.getElementById('results-card').classList.add('hidden');
   document.getElementById('err-banner').classList.add('hidden');
 
-  setStep('research', 'active',
-    serperKey
-      ? 'Realizando búsquedas web en tiempo real...'
-      : 'Analizando conocimiento del modelo sobre el tema...');
+  setStep('research', 'active', serperKey ? 'Realizando búsquedas web en tiempo real...' : 'Analizando conocimiento del modelo...');
 
   let research = '';
-  try {
-    research = await doResearch(topic, days, direction, lang);
-    setStep('research', 'done');
-  } catch (e) {
-    showError(`Error en la investigación: ${e.message}`);
-    resetBtn();
-    return;
-  }
+  try { research = await doResearch(topic, days, direction, lang, brandCtx); setStep('research', 'done'); }
+  catch (e) { showError(`Error en la investigación: ${e.message}`); resetBtn(); return; }
 
   setStep('generate', 'active');
-
   let generated = '';
-  try {
-    generated = await generateContent(topic, research, platforms, tone, lang);
-    setStep('generate', 'done');
-  } catch (e) {
-    showError(`Error generando contenido: ${e.message}`);
-    resetBtn();
-    return;
-  }
+  try { generated = await generateContent(topic, research, platforms, tone, lang, brandCtx); setStep('generate', 'done'); }
+  catch (e) { showError(`Error generando contenido: ${e.message}`); resetBtn(); return; }
 
-  const sections = parsePlatforms(generated, platforms);
-  renderResults(research, sections, platforms);
+  renderResults(research, parsePlatforms(generated, platforms), platforms);
   toast('✓ Contenido generado exitosamente');
   resetBtn();
 }
@@ -1065,8 +1149,12 @@ function resetBtn() {
   document.getElementById('gen-btn').innerHTML = '<span>✦</span> Investigar y generar contenido';
 }
 
-// ── Init ──────────────────────────────────────────────────────
-loadKey().then(() => syncKeyUI());
+// ── Init ──────────────────────────────────────────────────────────────────
+initBrands();
+renderBrands();
+renderManual();
+if (_activeBrandId) applyBrandToForm();
+syncKeyUI();
 </script>
 </body>
 </html>
