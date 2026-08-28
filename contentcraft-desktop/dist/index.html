@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>ContentCraft</title>
+  <title>ContentCraft — Herramienta de Creación de Contenido</title>
   <style>
     :root {
       --bg: #070b10;
@@ -14,172 +14,97 @@
       --text: #e6edf3;
       --muted: #7d8590;
       --accent: #58a6ff;
+      --accent2: #79c0ff;
       --green: #3fb950;
       --purple: #bc8cff;
+      --orange: #ffa657;
       --red: #f85149;
       color-scheme: dark;
     }
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
-      background: var(--bg); color: var(--text); min-height: 100vh;
-      display: flex; flex-direction: column;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
     }
 
     /* ── Header ── */
     .app-header {
       position: sticky; top: 0; z-index: 200;
-      background: #0d1117cc; border-bottom: 1px solid var(--line);
-      backdrop-filter: blur(12px); flex-shrink: 0;
+      background: #0d1117cc;
+      border-bottom: 1px solid var(--line);
+      backdrop-filter: blur(12px);
     }
     .header-inner {
-      max-width: 100%; margin: 0 auto;
-      display: flex; align-items: center; gap: 12px;
-      padding: 0 20px; height: 54px;
+      max-width: 1100px; margin: 0 auto;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 24px; height: 58px; gap: 16px;
     }
     .logo {
-      display: flex; align-items: center; gap: 9px;
-      font-weight: 800; font-size: 17px;
+      display: flex; align-items: center; gap: 10px;
+      font-weight: 800; font-size: 19px; text-decoration: none;
       background: linear-gradient(135deg, #58a6ff, #bc8cff);
-      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
-      flex-shrink: 0;
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
     }
     .logo-gem {
-      width: 28px; height: 28px; border-radius: 7px;
+      width: 30px; height: 30px; border-radius: 7px;
       background: linear-gradient(135deg, #1f6feb, #8957e5);
       display: flex; align-items: center; justify-content: center;
-      font-size: 15px; flex-shrink: 0; -webkit-text-fill-color: white;
+      font-size: 16px; flex-shrink: 0;
+      -webkit-text-fill-color: white;
     }
-    .hdr-spacer { flex: 1; }
-    .hdr-btn {
-      display: flex; align-items: center; gap: 6px;
-      padding: 5px 12px; border-radius: 6px;
+    .key-btn {
+      display: flex; align-items: center; gap: 7px;
+      padding: 6px 13px; border-radius: 6px;
       border: 1px solid var(--line); background: var(--panel);
-      color: var(--text); cursor: pointer; font-size: 12px; font-weight: 500;
-      font-family: inherit; transition: border-color 0.15s; white-space: nowrap;
+      color: var(--text); cursor: pointer; font-size: 13px; font-weight: 500;
+      font-family: inherit; transition: border-color 0.15s;
     }
-    .hdr-btn:hover { border-color: var(--accent); }
-    .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--red); transition: background 0.2s; }
+    .key-btn:hover { border-color: var(--accent); }
+    .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--red); transition: background 0.2s; }
     .dot.ok { background: var(--green); }
 
-    /* ── Body layout ── */
-    .app-body {
-      display: grid; grid-template-columns: 260px 1fr;
-      flex: 1; min-height: 0; height: calc(100vh - 54px);
-    }
+    /* ── Layout ── */
+    .main { max-width: 1100px; margin: 0 auto; padding: 32px 24px; display: grid; gap: 22px; }
 
-    /* ── Sidebar ── */
-    .sidebar {
-      border-right: 1px solid var(--line);
-      overflow-y: auto; display: flex; flex-direction: column;
-      background: var(--surface);
+    /* ── Hero ── */
+    .hero { text-align: center; padding: 24px 0 8px; }
+    .hero h1 {
+      font-size: clamp(26px, 4vw, 44px); font-weight: 800; line-height: 1.12;
+      background: linear-gradient(135deg, #e6edf3 0%, #58a6ff 45%, #bc8cff 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
     }
-    .sidebar::-webkit-scrollbar { width: 4px; }
-    .sidebar::-webkit-scrollbar-thumb { background: var(--line); border-radius: 2px; }
-
-    .sb-section { padding: 14px 14px 0; }
-    .sb-section + .sb-section { border-top: 1px solid var(--line); margin-top: 4px; padding-top: 14px; }
-
-    .sb-head {
-      display: flex; align-items: center; justify-content: space-between;
-      font-size: 11px; font-weight: 700; color: var(--muted);
-      text-transform: uppercase; letter-spacing: .5px; margin-bottom: 10px;
-    }
-    .sb-add {
-      width: 22px; height: 22px; border-radius: 5px;
-      background: transparent; border: 1px solid var(--line);
-      color: var(--muted); cursor: pointer; font-size: 15px; font-family: inherit;
-      display: flex; align-items: center; justify-content: center; line-height: 1;
-      transition: all 0.15s;
-    }
-    .sb-add:hover { border-color: var(--accent); color: var(--accent); }
-
-    .profile-list { display: grid; gap: 5px; padding-bottom: 14px; }
-
-    .profile-card {
-      display: flex; align-items: center; gap: 9px;
-      padding: 9px 11px; border-radius: 8px; cursor: pointer;
-      border: 1px solid transparent; background: transparent;
-      transition: all 0.15s; font-family: inherit; color: var(--text);
-      text-align: left; width: 100%;
-    }
-    .profile-card:hover { background: var(--panel); border-color: var(--line); }
-    .profile-card.active { background: rgba(88,166,255,.1); border-color: var(--accent); }
-    .profile-emoji { font-size: 20px; flex-shrink: 0; line-height: 1; }
-    .profile-info { flex: 1; min-width: 0; }
-    .profile-name { font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .profile-sub  { font-size: 11px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 1px; }
-    .profile-del  {
-      opacity: 0; width: 18px; height: 18px; border-radius: 4px;
-      background: transparent; border: none; color: var(--muted); cursor: pointer;
-      font-size: 13px; flex-shrink: 0; transition: all 0.15s;
-      display: flex; align-items: center; justify-content: center;
-    }
-    .profile-card:hover .profile-del { opacity: 1; }
-    .profile-del:hover { color: var(--red); }
-
-    /* ── Brand manual ── */
-    .brand-box {
-      background: var(--panel2); border: 1px dashed var(--line); border-radius: 8px;
-      padding: 12px; font-size: 12px; color: var(--muted); text-align: center;
-      cursor: pointer; transition: border-color 0.15s; margin-bottom: 14px;
-    }
-    .brand-box:hover { border-color: var(--accent); color: var(--accent); }
-    .brand-loaded {
-      background: var(--panel2); border: 1px solid var(--green); border-radius: 8px;
-      padding: 10px 12px; font-size: 12px; margin-bottom: 14px;
-      display: flex; align-items: center; gap: 8px;
-    }
-    .brand-loaded-name { flex: 1; color: var(--green); font-weight: 500; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .brand-del-btn {
-      background: none; border: none; color: var(--muted); cursor: pointer;
-      font-size: 14px; flex-shrink: 0; transition: color 0.15s;
-    }
-    .brand-del-btn:hover { color: var(--red); }
-    input.file-input { display: none; }
-
-    /* ── Topic chips ── */
-    .topic-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
-    .topic-chip {
-      padding: 5px 11px; border-radius: 999px;
-      border: 1px solid var(--line); background: var(--panel2);
-      font-size: 12px; color: var(--muted); cursor: pointer; transition: all 0.15s;
-      font-family: inherit;
-    }
-    .topic-chip:hover { border-color: var(--accent); color: var(--accent); }
-
-    /* ── Main scroll area ── */
-    .main-scroll {
-      overflow-y: auto; padding: 24px;
-    }
-    .main-scroll::-webkit-scrollbar { width: 5px; }
-    .main-scroll::-webkit-scrollbar-thumb { background: var(--line); border-radius: 2px; }
-
-    .main-inner { max-width: 860px; margin: 0 auto; display: grid; gap: 18px; }
+    .hero p { margin-top: 10px; font-size: 15px; color: var(--muted); }
 
     /* ── Card ── */
     .card { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
     .card-head {
-      padding: 11px 18px; border-bottom: 1px solid var(--line);
-      display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 13px;
+      padding: 13px 20px; border-bottom: 1px solid var(--line);
+      display: flex; align-items: center; gap: 9px;
+      font-weight: 600; font-size: 14px;
     }
     .head-icon {
-      width: 24px; height: 24px; border-radius: 6px;
-      display: flex; align-items: center; justify-content: center; font-size: 13px; flex-shrink: 0;
+      width: 26px; height: 26px; border-radius: 6px;
+      display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0;
     }
-    .card-body { padding: 18px; display: grid; gap: 16px; }
+    .card-body { padding: 20px; display: grid; gap: 18px; }
 
-    /* ── Form ── */
-    .fgroup { display: grid; gap: 6px; }
-    .flabel { font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .4px; }
-    .frow { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-    @media (max-width: 600px) { .frow { grid-template-columns: 1fr; } }
+    /* ── Form elements ── */
+    .fgroup { display: grid; gap: 7px; }
+    .flabel {
+      font-size: 12px; font-weight: 600; color: var(--muted);
+      text-transform: uppercase; letter-spacing: 0.4px;
+    }
+    .frow { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    @media (max-width: 580px) { .frow { grid-template-columns: 1fr; } }
 
     textarea, select, input[type=number], input[type=password], input[type=text] {
-      width: 100%; padding: 9px 12px;
-      background: var(--panel2); border: 1px solid var(--line); border-radius: 7px;
-      color: var(--text); font-size: 13px; font-family: inherit; transition: border-color 0.15s;
-      user-select: text;
+      width: 100%; padding: 10px 13px;
+      background: var(--panel2); border: 1px solid var(--line); border-radius: 8px;
+      color: var(--text); font-size: 14px; font-family: inherit; transition: border-color 0.15s;
     }
     textarea { resize: vertical; }
     textarea:focus, select:focus, input:focus { outline: none; border-color: var(--accent); }
@@ -187,521 +112,479 @@
     select { cursor: pointer; }
 
     /* ── Time toggle ── */
-    .time-toggle {
-      display: grid; grid-template-columns: 1fr 1fr;
-      background: var(--panel2); border: 1px solid var(--line); border-radius: 7px; overflow: hidden;
-    }
+    .time-toggle { display: grid; grid-template-columns: 1fr 1fr; background: var(--panel2); border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
     .time-toggle input { display: none; }
     .time-toggle label {
-      padding: 8px 12px; text-align: center; cursor: pointer;
-      font-size: 12px; font-weight: 500; color: var(--muted); transition: all 0.15s;
-      display: flex; align-items: center; justify-content: center; gap: 4px;
+      padding: 9px 14px; text-align: center; cursor: pointer;
+      font-size: 13px; font-weight: 500; color: var(--muted); transition: all 0.15s;
+      display: flex; align-items: center; justify-content: center; gap: 5px; user-select: none;
     }
     .time-toggle input:checked + label { background: var(--accent); color: #fff; }
 
-    /* ── Days ── */
+    /* ── Days row ── */
     .days-row { display: flex; align-items: center; gap: 10px; }
     input[type=range] { flex: 1; accent-color: var(--accent); cursor: pointer; }
-    input[type=number].days-num { width: 66px; text-align: center; flex-shrink: 0; padding: 8px 6px; }
+    input[type=number].days-num { width: 70px; text-align: center; flex-shrink: 0; padding: 9px 6px; }
 
     /* ── Platforms ── */
-    .plat-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 7px; }
+    .plat-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: 8px; }
     .plat-cb { display: none; }
     .plat-lbl {
-      display: flex; flex-direction: column; align-items: center; gap: 6px;
-      padding: 10px 8px; background: var(--panel2); border: 1px solid var(--line);
-      border-radius: 8px; cursor: pointer; font-size: 11px; font-weight: 500;
-      transition: all 0.15s; text-align: center;
+      display: flex; flex-direction: column; align-items: center; gap: 7px;
+      padding: 13px 10px; background: var(--panel2); border: 1px solid var(--line);
+      border-radius: 8px; cursor: pointer; font-size: 12px; font-weight: 500;
+      transition: all 0.15s; text-align: center; user-select: none;
     }
     .plat-lbl:hover { border-color: var(--accent); }
     .plat-cb:checked + .plat-lbl { border-color: var(--accent); background: rgba(88,166,255,.09); }
     .plat-ico {
-      width: 34px; height: 34px; border-radius: 9px;
-      display: flex; align-items: center; justify-content: center; font-size: 18px;
+      width: 38px; height: 38px; border-radius: 10px;
+      display: flex; align-items: center; justify-content: center; font-size: 20px;
     }
 
-    /* ── Tone ── */
-    .tone-row { display: flex; flex-wrap: wrap; gap: 5px; }
+    /* ── Tone chips ── */
+    .tone-row { display: flex; flex-wrap: wrap; gap: 6px; }
     .tone-cb { display: none; }
     .tone-lbl {
-      padding: 5px 12px; border: 1px solid var(--line); border-radius: 999px;
-      cursor: pointer; font-size: 12px; font-weight: 500; color: var(--muted); transition: all 0.15s;
+      padding: 6px 14px; border: 1px solid var(--line); border-radius: 999px;
+      cursor: pointer; font-size: 12px; font-weight: 500; color: var(--muted);
+      transition: all 0.15s; user-select: none;
     }
     .tone-cb:checked + .tone-lbl { border-color: var(--purple); color: var(--purple); background: rgba(188,140,255,.1); }
 
-    /* ── Generate btn ── */
+    /* ── Generate button ── */
     .gen-btn {
-      display: flex; align-items: center; justify-content: center; gap: 9px;
-      width: 100%; padding: 14px;
+      display: flex; align-items: center; justify-content: center; gap: 10px;
+      width: 100%; padding: 15px;
       background: linear-gradient(135deg, #1f6feb 0%, #6e40c9 100%);
-      border: 1px solid #388bfd; border-radius: 9px;
-      color: #fff; font-size: 14px; font-weight: 700;
+      border: 1px solid #388bfd; border-radius: 10px;
+      color: #fff; font-size: 15px; font-weight: 700;
       cursor: pointer; font-family: inherit; transition: all 0.2s;
     }
-    .gen-btn:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 7px 24px rgba(88,166,255,.28); }
+    .gen-btn:hover:not(:disabled) {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 28px rgba(88,166,255,.28);
+    }
     .gen-btn:disabled { opacity: .55; cursor: not-allowed; }
 
     /* ── Progress ── */
-    .steps { display: grid; gap: 9px; }
+    .steps { display: grid; gap: 10px; }
     .step {
-      display: flex; align-items: flex-start; gap: 11px;
-      padding: 11px 13px; background: var(--panel2); border: 1px solid var(--line);
+      display: flex; align-items: flex-start; gap: 12px;
+      padding: 12px 14px; background: var(--panel2); border: 1px solid var(--line);
       border-radius: 8px; font-size: 13px; opacity: .4; transition: all 0.3s;
     }
     .step.active { opacity: 1; border-color: var(--accent); }
-    .step.done   { opacity: 1; border-color: var(--green); }
+    .step.done  { opacity: 1; border-color: var(--green); }
     .step-num {
-      width: 24px; height: 24px; border-radius: 50%; flex-shrink: 0;
+      width: 26px; height: 26px; border-radius: 50%; flex-shrink: 0;
       display: flex; align-items: center; justify-content: center; font-size: 12px;
       border: 1px solid var(--line);
     }
     .step.active .step-num { background: var(--accent); border-color: var(--accent); color: #fff; }
-    .step.done   .step-num { background: var(--green); border-color: var(--green); color: #fff; }
+    .step.done  .step-num { background: var(--green); border-color: var(--green); color: #fff; }
     .step-info strong { display: block; font-weight: 600; margin-bottom: 2px; }
     .step-info span { color: var(--muted); font-size: 12px; }
 
+    /* ── Spinner ── */
     @keyframes spin { to { transform: rotate(360deg); } }
     .spin {
-      display: inline-block; width: 13px; height: 13px;
+      display: inline-block; width: 14px; height: 14px;
       border: 2px solid rgba(255,255,255,.25); border-top-color: #fff;
       border-radius: 50%; animation: spin .7s linear infinite;
     }
 
-    /* ── Results ── */
+    /* ── Research box ── */
     .research-box {
-      font-size: 13px; line-height: 1.65; white-space: pre-wrap; word-break: break-word;
-      max-height: 340px; overflow-y: auto; padding: 14px;
-      background: var(--panel2); border: 1px solid var(--line); border-radius: 8px; user-select: text;
+      font-size: 13px; line-height: 1.65; color: var(--text);
+      white-space: pre-wrap; word-break: break-word;
+      max-height: 380px; overflow-y: auto; padding: 16px;
+      background: var(--panel2); border: 1px solid var(--line); border-radius: 8px;
     }
+
+    /* ── Platform tabs ── */
     .tabs-bar {
-      display: flex; gap: 4px; overflow-x: auto; padding: 14px 18px 0;
+      display: flex; gap: 4px; overflow-x: auto; padding: 16px 20px 0;
       border-top: 1px solid var(--line);
     }
     .tabs-bar::-webkit-scrollbar { height: 4px; }
     .tabs-bar::-webkit-scrollbar-thumb { background: var(--line); border-radius: 2px; }
     .tab-btn {
-      display: flex; align-items: center; gap: 4px;
-      padding: 6px 12px; white-space: nowrap;
+      display: flex; align-items: center; gap: 5px;
+      padding: 7px 14px; white-space: nowrap;
       background: transparent; border: 1px solid var(--line); border-radius: 6px;
-      color: var(--muted); cursor: pointer; font-size: 12px; font-weight: 500;
+      color: var(--muted); cursor: pointer; font-size: 13px; font-weight: 500;
       font-family: inherit; transition: all 0.15s; flex-shrink: 0;
     }
     .tab-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; }
     .tab-btn:hover:not(.active) { border-color: var(--accent); color: var(--text); }
-    .tabs-content { padding: 14px 18px 18px; }
+    .tabs-content { padding: 16px 20px 20px; }
+
+    /* ── Content section ── */
     .plt-section { display: none; }
-    .plt-section.active { display: grid; gap: 10px; }
+    .plt-section.active { display: grid; gap: 12px; }
+
     .cblock { background: var(--panel2); border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
     .cblock-head {
       display: flex; align-items: center; justify-content: space-between;
-      padding: 8px 13px; border-bottom: 1px solid var(--line);
-      font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .5px;
+      padding: 9px 14px; border-bottom: 1px solid var(--line);
+      font-size: 11px; font-weight: 700; color: var(--muted);
+      text-transform: uppercase; letter-spacing: .5px;
     }
     .cblock-body {
-      padding: 13px; font-size: 13px; line-height: 1.7;
-      white-space: pre-wrap; word-break: break-word; max-height: 500px; overflow-y: auto; user-select: text;
+      padding: 14px; font-size: 13px; line-height: 1.7;
+      white-space: pre-wrap; word-break: break-word;
+      max-height: 520px; overflow-y: auto;
     }
     .copy-btn {
       display: flex; align-items: center; gap: 4px;
-      padding: 3px 8px; font-size: 11px; font-family: inherit;
+      padding: 4px 9px; font-size: 11px; font-family: inherit;
       background: transparent; border: 1px solid var(--line); border-radius: 4px;
       color: var(--muted); cursor: pointer; transition: all 0.15s; flex-shrink: 0;
     }
     .copy-btn:hover { border-color: var(--accent); color: var(--accent); }
     .copy-btn.ok { border-color: var(--green); color: var(--green); }
 
-    /* ── Profile context banner ── */
-    .profile-banner {
-      display: flex; align-items: center; gap: 10px;
-      padding: 10px 14px; background: rgba(88,166,255,.07);
-      border: 1px solid rgba(88,166,255,.25); border-radius: 9px;
-      font-size: 13px;
-    }
-    .profile-banner-emoji { font-size: 20px; }
-    .profile-banner-info { flex: 1; }
-    .profile-banner-name { font-weight: 600; }
-    .profile-banner-desc { font-size: 12px; color: var(--muted); margin-top: 1px; }
-
-    /* ── Modals ── */
+    /* ── Modal ── */
     .overlay {
-      position: fixed; inset: 0; background: rgba(0,0,0,.75);
+      position: fixed; inset: 0; background: rgba(0,0,0,.72);
       display: flex; align-items: center; justify-content: center;
       z-index: 1000; padding: 16px; backdrop-filter: blur(4px);
     }
     .modal {
       background: var(--panel); border: 1px solid var(--line); border-radius: 12px;
-      width: 100%; max-width: 460px; padding: 22px; display: grid; gap: 14px;
+      width: 100%; max-width: 440px; padding: 24px; display: grid; gap: 14px;
     }
-    .modal-wide { max-width: 560px; }
-    .modal h2 { font-size: 17px; font-weight: 700; }
+    .modal h2 { font-size: 18px; font-weight: 700; }
     .modal p { font-size: 13px; color: var(--muted); line-height: 1.5; }
     .modal-row { display: flex; gap: 8px; justify-content: flex-end; }
     .btn-sec {
-      padding: 7px 15px; border: 1px solid var(--line); border-radius: 6px;
+      padding: 8px 16px; border: 1px solid var(--line); border-radius: 6px;
       background: transparent; color: var(--text); cursor: pointer; font-size: 13px; font-family: inherit;
     }
     .btn-pri {
-      padding: 7px 15px; border: 1px solid #388bfd; border-radius: 6px;
+      padding: 8px 16px; border: 1px solid #388bfd; border-radius: 6px;
       background: #1f6feb; color: #fff; cursor: pointer; font-size: 13px;
       font-weight: 600; font-family: inherit;
     }
     .btn-pri:hover { background: #388bfd; }
     .keychain-badge {
       display: inline-flex; align-items: center; gap: 5px;
-      padding: 3px 8px; border-radius: 4px;
+      padding: 4px 10px; border-radius: 5px;
       background: rgba(63,185,80,.12); border: 1px solid rgba(63,185,80,.3);
       font-size: 11px; font-weight: 600; color: var(--green);
     }
 
-    /* ── Profile form ── */
-    .pf-plat-grid { display: flex; flex-wrap: wrap; gap: 5px; }
-    .pf-plat-cb { display: none; }
-    .pf-plat-lbl {
-      padding: 5px 10px; border: 1px solid var(--line); border-radius: 6px;
-      cursor: pointer; font-size: 12px; font-weight: 500; color: var(--muted); transition: all 0.15s;
-    }
-    .pf-plat-cb:checked + .pf-plat-lbl { border-color: var(--accent); color: var(--accent); background: rgba(88,166,255,.09); }
-    .pf-tone-row { display: flex; flex-wrap: wrap; gap: 5px; }
-    .pf-tone-cb { display: none; }
-    .pf-tone-lbl {
-      padding: 5px 10px; border: 1px solid var(--line); border-radius: 999px;
-      cursor: pointer; font-size: 12px; color: var(--muted); transition: all 0.15s;
-    }
-    .pf-tone-cb:checked + .pf-tone-lbl { border-color: var(--purple); color: var(--purple); background: rgba(188,140,255,.1); }
-
-    /* ── Toast / Error ── */
+    /* ── Toast ── */
     .toast {
-      position: fixed; bottom: 20px; right: 20px;
+      position: fixed; bottom: 24px; right: 24px;
       background: var(--panel); border: 1px solid var(--line); border-radius: 8px;
-      padding: 10px 15px; font-size: 13px;
-      opacity: 0; transform: translateY(10px); transition: all 0.25s;
-      z-index: 2000; pointer-events: none; max-width: 320px;
+      padding: 11px 16px; font-size: 13px;
+      opacity: 0; transform: translateY(12px); transition: all 0.25s;
+      z-index: 999; pointer-events: none; max-width: 340px;
     }
     .toast.show { opacity: 1; transform: translateY(0); }
+
+    /* ── Error banner ── */
     .error-banner {
-      padding: 11px 15px; background: rgba(248,81,73,.1); border: 1px solid rgba(248,81,73,.35);
+      padding: 12px 16px; background: rgba(248,81,73,.1); border: 1px solid rgba(248,81,73,.35);
       border-radius: 8px; font-size: 13px; color: var(--red); line-height: 1.5;
     }
+
     .hidden { display: none !important; }
     hr.div { border: none; border-top: 1px solid var(--line); }
   </style>
 </head>
 <body>
 
-<!-- ════ HEADER ════ -->
+<!-- ════════════════════ HEADER ════════════════════ -->
 <header class="app-header">
   <div class="header-inner">
-    <div class="logo">
+    <a class="logo" href="#">
       <div class="logo-gem">✦</div>
       ContentCraft
-    </div>
-    <div class="hdr-spacer"></div>
-    <button class="hdr-btn" id="key-btn" onclick="openKeyModal()">
+    </a>
+    <button class="key-btn" onclick="openKeyModal()">
       <span class="dot" id="key-dot"></span>
       <span id="key-lbl">Configurar API Key</span>
     </button>
   </div>
 </header>
 
-<!-- ════ BODY ════ -->
-<div class="app-body">
+<!-- ════════════════════ MAIN ════════════════════ -->
+<main class="main">
 
-  <!-- ── Sidebar ── -->
-  <aside class="sidebar">
-    <div class="sb-section">
-      <div class="sb-head">
-        Perfiles
-        <button class="sb-add" onclick="openProfileModal(null)" title="Nuevo perfil">+</button>
+  <div class="hero">
+    <h1>Investiga. Crea. Publica.</h1>
+    <p>Ingresa un tema, elige el período y las plataformas. ContentCraft investiga y genera todo el contenido listo para publicar.</p>
+  </div>
+
+  <!-- ── Config card ── -->
+  <div class="card">
+    <div class="card-head">
+      <div class="head-icon" style="background:#0f2644">🔍</div>
+      Configuración
+    </div>
+    <div class="card-body">
+
+      <!-- Topic -->
+      <div class="fgroup">
+        <label class="flabel" for="topic-in">Tema a investigar</label>
+        <textarea id="topic-in" rows="2"
+          placeholder="Ej: AWS re:Invent 2025 · Agentes de IA · Viajes con niños en Europa · Videojuegos indie · Eventos de tecnología en LATAM"></textarea>
       </div>
-      <div class="profile-list" id="profile-list"></div>
+
+      <div class="frow">
+        <!-- Time direction -->
+        <div class="fgroup">
+          <label class="flabel">Dirección temporal</label>
+          <div class="time-toggle">
+            <input type="radio" name="dir" id="dir-past" value="past" checked>
+            <label for="dir-past">⏮ Últimos días</label>
+            <input type="radio" name="dir" id="dir-future" value="future">
+            <label for="dir-future">Próximos días ⏭</label>
+          </div>
+        </div>
+
+        <!-- Days -->
+        <div class="fgroup">
+          <label class="flabel">Días: <strong id="days-lbl" style="color:var(--accent)">7</strong></label>
+          <div class="days-row">
+            <input type="range" id="days-range" min="1" max="90" value="7"
+              oninput="syncDays('range')">
+            <input type="number" class="days-num" id="days-num" min="1" max="90" value="7"
+              oninput="syncDays('num')">
+          </div>
+        </div>
+      </div>
+
+      <div class="frow">
+        <!-- Language -->
+        <div class="fgroup">
+          <label class="flabel" for="lang-sel">Idioma del contenido</label>
+          <select id="lang-sel">
+            <option value="español">Español</option>
+            <option value="inglés">English</option>
+            <option value="portugués">Português</option>
+            <option value="francés">Français</option>
+            <option value="italiano">Italiano</option>
+          </select>
+        </div>
+        <!-- Model -->
+        <div class="fgroup">
+          <label class="flabel" for="model-sel">Modelo</label>
+          <select id="model-sel">
+            <option value="claude-sonnet-5">Claude Sonnet 5 — Recomendado</option>
+            <option value="claude-opus-5">Claude Opus 5 — Máxima calidad</option>
+            <option value="claude-haiku-4-5-20251001">Claude Haiku 4.5 — Rápido</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Tone -->
+      <div class="fgroup">
+        <label class="flabel">Tono</label>
+        <div class="tone-row">
+          <input class="tone-cb" type="radio" name="tone" id="t-info" value="informativo y educativo" checked>
+          <label class="tone-lbl" for="t-info">📚 Informativo</label>
+          <input class="tone-cb" type="radio" name="tone" id="t-pro" value="profesional y de autoridad">
+          <label class="tone-lbl" for="t-pro">💼 Profesional</label>
+          <input class="tone-cb" type="radio" name="tone" id="t-ent" value="entretenido y dinámico">
+          <label class="tone-lbl" for="t-ent">🎉 Entretenido</label>
+          <input class="tone-cb" type="radio" name="tone" id="t-ins" value="inspirador y motivacional">
+          <label class="tone-lbl" for="t-ins">✨ Inspirador</label>
+          <input class="tone-cb" type="radio" name="tone" id="t-conv" value="conversacional y cercano">
+          <label class="tone-lbl" for="t-conv">💬 Conversacional</label>
+          <input class="tone-cb" type="radio" name="tone" id="t-hum" value="humorístico y ligero">
+          <label class="tone-lbl" for="t-hum">😄 Humor</label>
+        </div>
+      </div>
+
+      <hr class="div">
+
+      <!-- Platforms -->
+      <div class="fgroup">
+        <label class="flabel">Plataformas a generar</label>
+        <div class="plat-grid">
+          <input class="plat-cb" type="checkbox" id="plt-blog"       value="blog"       checked>
+          <label class="plat-lbl" for="plt-blog">
+            <div class="plat-ico" style="background:#132030">📝</div>Blog
+          </label>
+
+          <input class="plat-cb" type="checkbox" id="plt-instagram"  value="instagram"  checked>
+          <label class="plat-lbl" for="plt-instagram">
+            <div class="plat-ico" style="background:linear-gradient(135deg,#6228b6,#c8312a,#f0a500)">📸</div>Instagram
+          </label>
+
+          <input class="plat-cb" type="checkbox" id="plt-linkedin"   value="linkedin"   checked>
+          <label class="plat-lbl" for="plt-linkedin">
+            <div class="plat-ico" style="background:#004e7c">💼</div>LinkedIn
+          </label>
+
+          <input class="plat-cb" type="checkbox" id="plt-facebook"   value="facebook"   checked>
+          <label class="plat-lbl" for="plt-facebook">
+            <div class="plat-ico" style="background:#1050a8">👥</div>Facebook
+          </label>
+
+          <input class="plat-cb" type="checkbox" id="plt-youtube"    value="youtube"    checked>
+          <label class="plat-lbl" for="plt-youtube">
+            <div class="plat-ico" style="background:#8b0000">▶️</div>YouTube
+          </label>
+
+          <input class="plat-cb" type="checkbox" id="plt-twitter"    value="twitter">
+          <label class="plat-lbl" for="plt-twitter">
+            <div class="plat-ico" style="background:#111">𝕏</div>X / Twitter
+          </label>
+
+          <input class="plat-cb" type="checkbox" id="plt-tiktok"     value="tiktok">
+          <label class="plat-lbl" for="plt-tiktok">
+            <div class="plat-ico" style="background:#080808">🎵</div>TikTok
+          </label>
+
+          <input class="plat-cb" type="checkbox" id="plt-newsletter" value="newsletter">
+          <label class="plat-lbl" for="plt-newsletter">
+            <div class="plat-ico" style="background:#1e2535">📧</div>Newsletter
+          </label>
+        </div>
+      </div>
+
+      <!-- Serper key (optional) -->
+      <div class="fgroup" style="display:grid;gap:4px">
+        <label class="flabel" for="serper-in">Serper API Key <span style="color:var(--muted);font-weight:400;text-transform:none">(opcional — activa búsqueda web en tiempo real)</span></label>
+        <input type="password" id="serper-in" placeholder="Obtén una gratuita en serper.dev">
+      </div>
+
+      <button class="gen-btn" id="gen-btn" onclick="startGeneration()">
+        <span>✦</span> Investigar y generar contenido
+      </button>
+
+    </div>
+  </div>
+
+  <!-- ── Progress card ── -->
+  <div class="card hidden" id="prog-card">
+    <div class="card-head">
+      <div class="head-icon" style="background:#0f2520">⚡</div>
+      Procesando
+    </div>
+    <div class="card-body">
+      <div class="steps">
+        <div class="step" id="s-research">
+          <div class="step-num" id="sn-research">1</div>
+          <div class="step-info">
+            <strong>Investigando el tema</strong>
+            <span id="s-research-detail">Analizando fuentes y tendencias...</span>
+          </div>
+        </div>
+        <div class="step" id="s-generate">
+          <div class="step-num" id="sn-generate">2</div>
+          <div class="step-info">
+            <strong>Generando contenido</strong>
+            <span>Creando contenido optimizado para cada plataforma...</span>
+          </div>
+        </div>
+      </div>
+      <div class="error-banner hidden" id="err-banner"></div>
+    </div>
+  </div>
+
+  <!-- ── Results card ── -->
+  <div class="card hidden" id="results-card">
+    <!-- Research -->
+    <div class="card-head">
+      <div class="head-icon" style="background:#0f2520">📊</div>
+      Investigación
+      <span style="margin-left:auto;font-size:12px;color:var(--muted)" id="res-meta"></span>
+    </div>
+    <div style="padding:16px 20px">
+      <div class="research-box" id="res-box"></div>
     </div>
 
-    <div class="sb-section" id="brand-section" style="display:none">
-      <div class="sb-head">Manual de marca</div>
-      <div id="brand-content"></div>
-    </div>
-  </aside>
+    <!-- Platform tabs -->
+    <div class="tabs-bar" id="tabs-bar"></div>
+    <div class="tabs-content" id="tabs-content"></div>
+  </div>
 
-  <!-- ── Main ── -->
-  <div class="main-scroll">
-    <div class="main-inner">
+</main>
 
-      <!-- Profile banner (when one is active) -->
-      <div class="profile-banner hidden" id="profile-banner">
-        <div class="profile-banner-emoji" id="pb-emoji"></div>
-        <div class="profile-banner-info">
-          <div class="profile-banner-name" id="pb-name"></div>
-          <div class="profile-banner-desc" id="pb-desc"></div>
-        </div>
-        <button class="btn-sec" style="font-size:12px;padding:4px 10px" onclick="clearProfile()">Quitar</button>
-      </div>
-
-      <!-- Topic chips from profile -->
-      <div class="topic-chips hidden" id="topic-chips"></div>
-
-      <!-- Config card -->
-      <div class="card">
-        <div class="card-head">
-          <div class="head-icon" style="background:#0f2644">🔍</div>
-          Configuración
-        </div>
-        <div class="card-body">
-
-          <div class="fgroup">
-            <label class="flabel" for="topic-in">Tema a investigar</label>
-            <textarea id="topic-in" rows="2"
-              placeholder="Ej: AWS re:Invent 2025 · Agentes de IA · Viajes con niños · Gadgets 2025"></textarea>
-          </div>
-
-          <div class="frow">
-            <div class="fgroup">
-              <label class="flabel">Dirección temporal</label>
-              <div class="time-toggle">
-                <input type="radio" name="dir" id="dir-past" value="past" checked>
-                <label for="dir-past">⏮ Últimos días</label>
-                <input type="radio" name="dir" id="dir-future" value="future">
-                <label for="dir-future">Próximos días ⏭</label>
-              </div>
-            </div>
-            <div class="fgroup">
-              <label class="flabel">Días: <strong id="days-lbl" style="color:var(--accent)">7</strong></label>
-              <div class="days-row">
-                <input type="range" id="days-range" min="1" max="90" value="7" oninput="syncDays('range')">
-                <input type="number" class="days-num" id="days-num" min="1" max="90" value="7" oninput="syncDays('num')">
-              </div>
-            </div>
-          </div>
-
-          <div class="frow">
-            <div class="fgroup">
-              <label class="flabel" for="lang-sel">Idioma</label>
-              <select id="lang-sel">
-                <option value="español">Español</option>
-                <option value="inglés">English</option>
-                <option value="portugués">Português</option>
-                <option value="francés">Français</option>
-              </select>
-            </div>
-            <div class="fgroup">
-              <label class="flabel" for="model-sel">Modelo</label>
-              <select id="model-sel">
-                <option value="claude-sonnet-5">Claude Sonnet 5 — Recomendado</option>
-                <option value="claude-opus-5">Claude Opus 5 — Máxima calidad</option>
-                <option value="claude-haiku-4-5-20251001">Claude Haiku 4.5 — Rápido</option>
-              </select>
-            </div>
-          </div>
-
-          <div class="fgroup">
-            <label class="flabel">Tono</label>
-            <div class="tone-row">
-              <input class="tone-cb" type="radio" name="tone" id="t-info" value="informativo y educativo" checked>
-              <label class="tone-lbl" for="t-info">📚 Informativo</label>
-              <input class="tone-cb" type="radio" name="tone" id="t-pro" value="profesional y de autoridad">
-              <label class="tone-lbl" for="t-pro">💼 Profesional</label>
-              <input class="tone-cb" type="radio" name="tone" id="t-ent" value="entretenido y dinámico">
-              <label class="tone-lbl" for="t-ent">🎉 Entretenido</label>
-              <input class="tone-cb" type="radio" name="tone" id="t-ins" value="inspirador y motivacional">
-              <label class="tone-lbl" for="t-ins">✨ Inspirador</label>
-              <input class="tone-cb" type="radio" name="tone" id="t-conv" value="conversacional y cercano">
-              <label class="tone-lbl" for="t-conv">💬 Conversacional</label>
-              <input class="tone-cb" type="radio" name="tone" id="t-hum" value="humorístico y ligero">
-              <label class="tone-lbl" for="t-hum">😄 Humor</label>
-            </div>
-          </div>
-
-          <hr class="div">
-
-          <div class="fgroup">
-            <label class="flabel">Plataformas a generar</label>
-            <div class="plat-grid">
-              <input class="plat-cb" type="checkbox" id="plt-blog" value="blog" checked>
-              <label class="plat-lbl" for="plt-blog"><div class="plat-ico" style="background:#132030">📝</div>Blog</label>
-              <input class="plat-cb" type="checkbox" id="plt-instagram" value="instagram" checked>
-              <label class="plat-lbl" for="plt-instagram"><div class="plat-ico" style="background:linear-gradient(135deg,#6228b6,#c8312a,#f0a500)">📸</div>Instagram</label>
-              <input class="plat-cb" type="checkbox" id="plt-linkedin" value="linkedin" checked>
-              <label class="plat-lbl" for="plt-linkedin"><div class="plat-ico" style="background:#004e7c">💼</div>LinkedIn</label>
-              <input class="plat-cb" type="checkbox" id="plt-facebook" value="facebook" checked>
-              <label class="plat-lbl" for="plt-facebook"><div class="plat-ico" style="background:#1050a8">👥</div>Facebook</label>
-              <input class="plat-cb" type="checkbox" id="plt-youtube" value="youtube" checked>
-              <label class="plat-lbl" for="plt-youtube"><div class="plat-ico" style="background:#8b0000">▶️</div>YouTube</label>
-              <input class="plat-cb" type="checkbox" id="plt-twitter" value="twitter">
-              <label class="plat-lbl" for="plt-twitter"><div class="plat-ico" style="background:#111">𝕏</div>X / Twitter</label>
-              <input class="plat-cb" type="checkbox" id="plt-tiktok" value="tiktok">
-              <label class="plat-lbl" for="plt-tiktok"><div class="plat-ico" style="background:#080808">🎵</div>TikTok</label>
-              <input class="plat-cb" type="checkbox" id="plt-newsletter" value="newsletter">
-              <label class="plat-lbl" for="plt-newsletter"><div class="plat-ico" style="background:#1e2535">📧</div>Newsletter</label>
-            </div>
-          </div>
-
-          <div class="fgroup">
-            <label class="flabel" for="serper-in">Serper API Key <span style="color:var(--muted);font-weight:400;text-transform:none">(opcional — búsqueda web en tiempo real)</span></label>
-            <input type="password" id="serper-in" placeholder="Obtén una gratuita en serper.dev">
-          </div>
-
-          <button class="gen-btn" id="gen-btn" onclick="startGeneration()">
-            <span>✦</span> Investigar y generar contenido
-          </button>
-        </div>
-      </div>
-
-      <!-- Progress -->
-      <div class="card hidden" id="prog-card">
-        <div class="card-head"><div class="head-icon" style="background:#0f2520">⚡</div>Procesando</div>
-        <div class="card-body">
-          <div class="steps">
-            <div class="step" id="s-research">
-              <div class="step-num" id="sn-research">1</div>
-              <div class="step-info"><strong>Investigando el tema</strong><span id="s-research-detail">Analizando fuentes y tendencias...</span></div>
-            </div>
-            <div class="step" id="s-generate">
-              <div class="step-num" id="sn-generate">2</div>
-              <div class="step-info"><strong>Generando contenido</strong><span>Creando contenido optimizado para cada plataforma...</span></div>
-            </div>
-          </div>
-          <div class="error-banner hidden" id="err-banner"></div>
-        </div>
-      </div>
-
-      <!-- Results -->
-      <div class="card hidden" id="results-card">
-        <div class="card-head">
-          <div class="head-icon" style="background:#0f2520">📊</div>
-          Investigación
-          <span style="margin-left:auto;font-size:12px;color:var(--muted)" id="res-meta"></span>
-        </div>
-        <div style="padding:14px 18px"><div class="research-box" id="res-box"></div></div>
-        <div class="tabs-bar" id="tabs-bar"></div>
-        <div class="tabs-content" id="tabs-content"></div>
-      </div>
-
-    </div><!-- /main-inner -->
-  </div><!-- /main-scroll -->
-</div><!-- /app-body -->
-
-<!-- ════ API KEY MODAL ════ -->
+<!-- ════════════════════ API KEY MODAL ════════════════════ -->
 <div class="overlay hidden" id="key-modal" onclick="if(event.target===this)closeKeyModal()">
   <div class="modal">
     <div>
       <h2>🔑 Anthropic API Key</h2>
-      <p style="margin-top:6px">Tu key se guarda en el llavero del sistema operativo. Nunca pasa por servidores intermedios.</p>
+      <p style="margin-top:6px" id="key-modal-desc">Tu key se guarda solo en este navegador (localStorage) y se envía directamente a api.anthropic.com. Nunca pasa por ningún servidor intermedio.</p>
     </div>
-    <span class="keychain-badge hidden" id="keychain-badge">🔒 Llavero del sistema</span>
-    <input type="password" id="key-in" placeholder="sk-ant-api03-..." onkeydown="if(event.key==='Enter')saveKey()">
-    <p>Obtén tu key en <a href="https://console.anthropic.com/settings/keys" target="_blank" style="color:var(--accent)">console.anthropic.com</a></p>
+    <span class="keychain-badge hidden" id="keychain-badge">🔒 Guardada en el llavero del sistema</span>
+    <input type="password" id="key-in" placeholder="sk-ant-api03-..."
+      onkeydown="if(event.key==='Enter')saveKey()">
+    <p>Obtén tu key en <a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener" style="color:var(--accent)">console.anthropic.com</a></p>
     <div class="modal-row">
       <button class="btn-sec" onclick="closeKeyModal()">Cancelar</button>
-      <button class="btn-pri" onclick="saveKey()">Guardar</button>
+      <button class="btn-pri" onclick="saveKey()">Guardar key</button>
     </div>
   </div>
 </div>
 
-<!-- ════ PROFILE MODAL ════ -->
-<div class="overlay hidden" id="profile-modal" onclick="if(event.target===this)closeProfileModal()">
-  <div class="modal modal-wide">
-    <h2 id="pf-modal-title">Nuevo perfil</h2>
-    <input type="hidden" id="pf-id">
-
-    <div class="frow">
-      <div class="fgroup">
-        <label class="flabel">Emoji</label>
-        <input type="text" id="pf-emoji" placeholder="📱" maxlength="2" style="font-size:22px;text-align:center">
-      </div>
-      <div class="fgroup">
-        <label class="flabel">Nombre del perfil / marca</label>
-        <input type="text" id="pf-name" placeholder="Ej: Chismecito Tech">
-      </div>
-    </div>
-
-    <div class="fgroup">
-      <label class="flabel">Descripción del negocio / nicho</label>
-      <textarea id="pf-desc" rows="2" placeholder="Ej: Canal de gadgets y tecnología — reseñas, novedades y lanzamientos en Instagram y TikTok"></textarea>
-    </div>
-
-    <div class="fgroup">
-      <label class="flabel">Temas sugeridos (uno por línea)</label>
-      <textarea id="pf-topics" rows="3" placeholder="Nuevos smartphones&#10;Apps de productividad&#10;Tech reviews"></textarea>
-    </div>
-
-    <div class="fgroup">
-      <label class="flabel">Plataformas principales</label>
-      <div class="pf-plat-grid">
-        <input class="pf-plat-cb" type="checkbox" id="pp-blog" value="blog"><label class="pf-plat-lbl" for="pp-blog">📝 Blog</label>
-        <input class="pf-plat-cb" type="checkbox" id="pp-instagram" value="instagram"><label class="pf-plat-lbl" for="pp-instagram">📸 Instagram</label>
-        <input class="pf-plat-cb" type="checkbox" id="pp-linkedin" value="linkedin"><label class="pf-plat-lbl" for="pp-linkedin">💼 LinkedIn</label>
-        <input class="pf-plat-cb" type="checkbox" id="pp-facebook" value="facebook"><label class="pf-plat-lbl" for="pp-facebook">👥 Facebook</label>
-        <input class="pf-plat-cb" type="checkbox" id="pp-youtube" value="youtube"><label class="pf-plat-lbl" for="pp-youtube">▶️ YouTube</label>
-        <input class="pf-plat-cb" type="checkbox" id="pp-twitter" value="twitter"><label class="pf-plat-lbl" for="pp-twitter">𝕏 Twitter</label>
-        <input class="pf-plat-cb" type="checkbox" id="pp-tiktok" value="tiktok"><label class="pf-plat-lbl" for="pp-tiktok">🎵 TikTok</label>
-        <input class="pf-plat-cb" type="checkbox" id="pp-newsletter" value="newsletter"><label class="pf-plat-lbl" for="pp-newsletter">📧 Newsletter</label>
-      </div>
-    </div>
-
-    <div class="fgroup">
-      <label class="flabel">Tono por defecto</label>
-      <div class="pf-tone-row">
-        <input class="pf-tone-cb" type="radio" name="pf-tone" id="pt-info" value="informativo y educativo" checked><label class="pf-tone-lbl" for="pt-info">📚 Informativo</label>
-        <input class="pf-tone-cb" type="radio" name="pf-tone" id="pt-pro" value="profesional y de autoridad"><label class="pf-tone-lbl" for="pt-pro">💼 Profesional</label>
-        <input class="pf-tone-cb" type="radio" name="pf-tone" id="pt-ent" value="entretenido y dinámico"><label class="pf-tone-lbl" for="pt-ent">🎉 Entretenido</label>
-        <input class="pf-tone-cb" type="radio" name="pf-tone" id="pt-ins" value="inspirador y motivacional"><label class="pf-tone-lbl" for="pt-ins">✨ Inspirador</label>
-        <input class="pf-tone-cb" type="radio" name="pf-tone" id="pt-conv" value="conversacional y cercano"><label class="pf-tone-lbl" for="pt-conv">💬 Conversacional</label>
-        <input class="pf-tone-cb" type="radio" name="pf-tone" id="pt-hum" value="humorístico y ligero"><label class="pf-tone-lbl" for="pt-hum">😄 Humor</label>
-      </div>
-    </div>
-
-    <div class="modal-row">
-      <button class="btn-sec" onclick="closeProfileModal()">Cancelar</button>
-      <button class="btn-pri" onclick="saveProfile()">Guardar perfil</button>
-    </div>
-  </div>
-</div>
-
-<!-- hidden file input for brand manual -->
-<input type="file" class="file-input" id="brand-file-input" accept=".txt,.md,.csv" onchange="handleBrandFile(event)">
-
+<!-- ════════════════════ TOAST ════════════════════ -->
 <div class="toast" id="toast"></div>
 
+<!-- ════════════════════ SCRIPT ════════════════════ -->
 <script>
 'use strict';
 
-// ── Tauri detection ───────────────────────────────────────────
+// ── Tauri detection ──────────────────────────────────────────
 const isTauri = () => '__TAURI_INTERNALS__' in window;
+
+// Use __TAURI_INTERNALS__.invoke — works in Tauri v2 without withGlobalTauri
+// Falls back to window.__TAURI__.core.invoke if withGlobalTauri is set
 function tauriInvoke(cmd, args) {
-  // withGlobalTauri=true exposes window.__TAURI__; fallback to __TAURI_INTERNALS__
   if (window.__TAURI__?.core?.invoke) return window.__TAURI__.core.invoke(cmd, args);
   return window.__TAURI_INTERNALS__.invoke(cmd, args);
 }
 
-// ── Cached key ────────────────────────────────────────────────
+// ── API key (Tauri → keychain; web → localStorage) ───────────
+const LS_KEY = 'contentcraft_apikey';
 let _cachedKey = '';
+
 async function loadKey() {
   if (isTauri()) {
-    try { _cachedKey = await tauriInvoke('get_api_key', { provider: 'anthropic' }) || ''; }
-    catch { _cachedKey = ''; }
+    try {
+      const k = await tauriInvoke('get_api_key', { provider: 'anthropic' });
+      _cachedKey = k || '';
+    } catch {
+      _cachedKey = '';
+    }
   } else {
-    _cachedKey = localStorage.getItem('cc_apikey') || '';
+    _cachedKey = localStorage.getItem(LS_KEY) || '';
   }
 }
+
 function getKey() { return _cachedKey; }
+
 async function persistKey(k) {
   if (isTauri()) {
     if (k) await tauriInvoke('set_api_key', { provider: 'anthropic', key: k });
     else await tauriInvoke('delete_api_key', { provider: 'anthropic' }).catch(() => {});
   } else {
-    if (k) localStorage.setItem('cc_apikey', k); else localStorage.removeItem('cc_apikey');
+    if (k) localStorage.setItem(LS_KEY, k);
+    else localStorage.removeItem(LS_KEY);
   }
   _cachedKey = k;
 }
 
-// ── Key modal ─────────────────────────────────────────────────
 function openKeyModal() {
   document.getElementById('key-in').value = getKey();
-  if (isTauri()) document.getElementById('keychain-badge').classList.remove('hidden');
-  else document.getElementById('keychain-badge').classList.add('hidden');
+  if (isTauri()) {
+    document.getElementById('key-modal-desc').textContent =
+      'Tu key se guarda en el llavero del sistema operativo (Keychain / Credential Manager / libsecret). Nunca se escribe en disco en texto plano.';
+    document.getElementById('keychain-badge').classList.remove('hidden');
+  }
   document.getElementById('key-modal').classList.remove('hidden');
   setTimeout(() => document.getElementById('key-in').focus(), 50);
 }
+
 function closeKeyModal() { document.getElementById('key-modal').classList.add('hidden'); }
+
 async function saveKey() {
   const k = document.getElementById('key-in').value.trim();
   if (!k) return;
@@ -709,231 +592,16 @@ async function saveKey() {
     await persistKey(k);
     syncKeyUI();
     closeKeyModal();
-    toast('✓ API Key guardada' + (isTauri() ? ' en llavero del sistema' : ''));
-  } catch (e) { toast('Error: ' + e.message); }
+    toast('✓ API Key guardada' + (isTauri() ? ' en el llavero del sistema' : ''));
+  } catch (e) {
+    toast('Error al guardar: ' + e.message);
+  }
 }
+
 function syncKeyUI() {
   const ok = !!getKey();
   document.getElementById('key-dot').classList.toggle('ok', ok);
   document.getElementById('key-lbl').textContent = ok ? 'API Key ✓' : 'Configurar API Key';
-}
-
-// ── Profiles ──────────────────────────────────────────────────
-const LS_PROFILES = 'cc_profiles';
-const LS_ACTIVE   = 'cc_active_profile';
-
-const DEFAULT_PROFILES = [
-  {
-    id: 'sofy-romero',
-    name: 'Sofy Romero',
-    emoji: '📚',
-    description: 'Personal brand — libros infantiles de IA/tecnología (Las Aventuras de Dato), speaker, causas filantrópicas y Ko-fi',
-    platforms: ['instagram', 'facebook', 'tiktok', 'newsletter', 'youtube'],
-    tone: 'inspirador y motivacional',
-    topics: ['Las Aventuras de Dato', 'Inteligencia Artificial para niños', 'Educación tecnológica en LATAM', 'Eventos de tecnología', 'Filantropía y tech'],
-  },
-  {
-    id: 'chismecito-tech',
-    name: 'Chismecito Tech',
-    emoji: '📱',
-    description: 'Canal de gadgets y tecnología — reseñas, novedades y chismes tech en Instagram, TikTok y YouTube',
-    platforms: ['instagram', 'tiktok', 'youtube'],
-    tone: 'entretenido y dinámico',
-    topics: ['Nuevos smartphones', 'Gadgets 2025', 'Tech reviews', 'Lanzamientos de tecnología', 'Apps y software'],
-  },
-  {
-    id: 'open-roads',
-    name: 'Open Roads Open Source',
-    emoji: '🛣️',
-    description: 'Mezcla de viajes en carretera y software open source — aventuras y proyectos de código abierto',
-    platforms: ['youtube', 'instagram', 'tiktok', 'blog'],
-    tone: 'conversacional y cercano',
-    topics: ['Viajes en carretera', 'Software open source', 'Proyectos open source', 'Aventuras de viaje', 'Comunidad tech'],
-  },
-];
-
-function getProfiles() {
-  try { return JSON.parse(localStorage.getItem(LS_PROFILES)) || null; }
-  catch { return null; }
-}
-function saveProfiles(profiles) { localStorage.setItem(LS_PROFILES, JSON.stringify(profiles)); }
-function initProfiles() {
-  if (!getProfiles()) saveProfiles(DEFAULT_PROFILES);
-}
-
-let _activeProfileId = localStorage.getItem(LS_ACTIVE) || null;
-function getActiveProfile() {
-  const profiles = getProfiles() || [];
-  return profiles.find(p => p.id === _activeProfileId) || null;
-}
-
-function renderProfiles() {
-  const profiles = getProfiles() || [];
-  const list = document.getElementById('profile-list');
-  list.innerHTML = '';
-  profiles.forEach(p => {
-    const card = document.createElement('button');
-    card.className = 'profile-card' + (p.id === _activeProfileId ? ' active' : '');
-    card.innerHTML = `
-      <div class="profile-emoji">${p.emoji}</div>
-      <div class="profile-info">
-        <div class="profile-name">${escHtml(p.name)}</div>
-        <div class="profile-sub">${escHtml((p.topics || []).slice(0,2).join(' · '))}</div>
-      </div>
-      <button class="profile-del" onclick="deleteProfile(event,'${p.id}')" title="Eliminar">✕</button>`;
-    card.addEventListener('click', () => activateProfile(p.id));
-    list.appendChild(card);
-  });
-}
-
-function activateProfile(id) {
-  _activeProfileId = id;
-  localStorage.setItem(LS_ACTIVE, id);
-  renderProfiles();
-  applyProfileToForm();
-  renderBrandSection();
-}
-
-function clearProfile() {
-  _activeProfileId = null;
-  localStorage.removeItem(LS_ACTIVE);
-  renderProfiles();
-  document.getElementById('profile-banner').classList.add('hidden');
-  document.getElementById('topic-chips').classList.add('hidden');
-  document.getElementById('topic-chips').innerHTML = '';
-  renderBrandSection();
-}
-
-function applyProfileToForm() {
-  const p = getActiveProfile();
-  if (!p) return;
-
-  // Profile banner
-  document.getElementById('pb-emoji').textContent = p.emoji;
-  document.getElementById('pb-name').textContent = p.name;
-  document.getElementById('pb-desc').textContent = p.description;
-  document.getElementById('profile-banner').classList.remove('hidden');
-
-  // Platforms
-  document.querySelectorAll('.plat-cb').forEach(cb => {
-    cb.checked = (p.platforms || []).includes(cb.value);
-  });
-
-  // Tone
-  const toneRadio = document.querySelector(`input[name=tone][value="${p.tone}"]`);
-  if (toneRadio) toneRadio.checked = true;
-
-  // Topic chips
-  const chips = document.getElementById('topic-chips');
-  chips.innerHTML = '';
-  (p.topics || []).forEach(t => {
-    const btn = document.createElement('button');
-    btn.className = 'topic-chip';
-    btn.textContent = t;
-    btn.onclick = () => { document.getElementById('topic-in').value = t; };
-    chips.appendChild(btn);
-  });
-  chips.classList.toggle('hidden', (p.topics || []).length === 0);
-}
-
-function deleteProfile(e, id) {
-  e.stopPropagation();
-  const profiles = (getProfiles() || []).filter(p => p.id !== id);
-  saveProfiles(profiles);
-  if (_activeProfileId === id) clearProfile();
-  else renderProfiles();
-  toast('Perfil eliminado');
-}
-
-// ── Profile modal ─────────────────────────────────────────────
-function openProfileModal(id) {
-  const profiles = getProfiles() || [];
-  const p = id ? profiles.find(x => x.id === id) : null;
-  document.getElementById('pf-modal-title').textContent = p ? 'Editar perfil' : 'Nuevo perfil';
-  document.getElementById('pf-id').value = id || '';
-  document.getElementById('pf-emoji').value = p ? p.emoji : '';
-  document.getElementById('pf-name').value = p ? p.name : '';
-  document.getElementById('pf-desc').value = p ? p.description : '';
-  document.getElementById('pf-topics').value = p ? (p.topics || []).join('\n') : '';
-  document.querySelectorAll('.pf-plat-cb').forEach(cb => {
-    cb.checked = p ? (p.platforms || []).includes(cb.value) : false;
-  });
-  const toneVal = p ? p.tone : 'informativo y educativo';
-  const tr = document.querySelector(`input[name=pf-tone][value="${toneVal}"]`);
-  if (tr) tr.checked = true;
-  document.getElementById('profile-modal').classList.remove('hidden');
-}
-function closeProfileModal() { document.getElementById('profile-modal').classList.add('hidden'); }
-function saveProfile() {
-  const name = document.getElementById('pf-name').value.trim();
-  if (!name) { toast('⚠️ El nombre es requerido'); return; }
-  const id = document.getElementById('pf-id').value || 'p-' + Date.now();
-  const profile = {
-    id,
-    name,
-    emoji: document.getElementById('pf-emoji').value.trim() || '✦',
-    description: document.getElementById('pf-desc').value.trim(),
-    platforms: [...document.querySelectorAll('.pf-plat-cb:checked')].map(c => c.value),
-    tone: document.querySelector('input[name=pf-tone]:checked')?.value || 'informativo y educativo',
-    topics: document.getElementById('pf-topics').value.split('\n').map(s => s.trim()).filter(Boolean),
-  };
-  const profiles = getProfiles() || [];
-  const idx = profiles.findIndex(p => p.id === id);
-  if (idx >= 0) profiles[idx] = profile; else profiles.push(profile);
-  saveProfiles(profiles);
-  closeProfileModal();
-  renderProfiles();
-  if (_activeProfileId === id) applyProfileToForm();
-  toast('✓ Perfil guardado');
-}
-
-// ── Brand manual ──────────────────────────────────────────────
-function brandKey(id) { return 'cc_brand_' + id; }
-function getBrand(id) { return localStorage.getItem(brandKey(id)) || ''; }
-function saveBrand(id, content, name) {
-  localStorage.setItem(brandKey(id), content);
-  localStorage.setItem(brandKey(id) + '_name', name);
-}
-function deleteBrand(id) {
-  localStorage.removeItem(brandKey(id));
-  localStorage.removeItem(brandKey(id) + '_name');
-}
-function getBrandName(id) { return localStorage.getItem(brandKey(id) + '_name') || ''; }
-
-function renderBrandSection() {
-  const section = document.getElementById('brand-section');
-  const content = document.getElementById('brand-content');
-  const p = getActiveProfile();
-  if (!p) { section.style.display = 'none'; return; }
-  section.style.display = '';
-  const brand = getBrand(p.id);
-  if (brand) {
-    content.innerHTML = `
-      <div class="brand-loaded">
-        <span>📄</span>
-        <span class="brand-loaded-name">${escHtml(getBrandName(p.id))}</span>
-        <button class="brand-del-btn" onclick="removeBrand('${p.id}')">✕</button>
-      </div>`;
-  } else {
-    content.innerHTML = `
-      <div class="brand-box" onclick="document.getElementById('brand-file-input').setAttribute('data-pid','${p.id}');document.getElementById('brand-file-input').click()">
-        ⬆ Subir manual de marca<br><span style="font-size:11px;margin-top:3px;display:block">Acepta .txt · .md · .csv</span>
-      </div>`;
-  }
-}
-function removeBrand(pid) { deleteBrand(pid); renderBrandSection(); toast('Manual eliminado'); }
-function handleBrandFile(e) {
-  const file = e.target.files[0];
-  const pid = e.target.getAttribute('data-pid') || _activeProfileId;
-  if (!file || !pid) return;
-  const reader = new FileReader();
-  reader.onload = ev => {
-    saveBrand(pid, ev.target.result, file.name);
-    renderBrandSection();
-    toast('✓ Manual de marca cargado');
-  };
-  reader.readAsText(file);
-  e.target.value = '';
 }
 
 // ── Days sync ─────────────────────────────────────────────────
@@ -947,38 +615,51 @@ function syncDays(src) {
 }
 
 // ── Toast ─────────────────────────────────────────────────────
-let _toastTimer;
+let toastTimer;
 function toast(msg, ms = 2800) {
   const el = document.getElementById('toast');
   el.textContent = msg;
   el.classList.add('show');
-  clearTimeout(_toastTimer);
-  _toastTimer = setTimeout(() => el.classList.remove('show'), ms);
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), ms);
 }
 
-// ── Copy ─────────────────────────────────────────────────────
+// ── Copy to clipboard ─────────────────────────────────────────
 function copyText(id, btn) {
-  navigator.clipboard.writeText(document.getElementById(id).textContent).then(() => {
-    btn.textContent = '✓ Copiado'; btn.classList.add('ok');
+  const txt = document.getElementById(id).textContent;
+  navigator.clipboard.writeText(txt).then(() => {
+    btn.textContent = '✓ Copiado';
+    btn.classList.add('ok');
     setTimeout(() => { btn.textContent = '⎘ Copiar'; btn.classList.remove('ok'); }, 2000);
-  }).catch(() => toast('No se pudo copiar'));
+  }).catch(() => toast('No se pudo copiar al portapapeles'));
 }
 
-// ── Claude API ────────────────────────────────────────────────
+// ── Claude API call ───────────────────────────────────────────
 async function callClaude({ messages, tools, system, maxTokens = 8192 }) {
   const apiKey = getKey();
   if (!apiKey) throw new Error('Sin API Key. Haz clic en "Configurar API Key".');
+
   const model = document.getElementById('model-sel').value;
-  const payload = { model, max_tokens: maxTokens, messages,
-    ...(system && { system }), ...(tools && tools.length && { tools }) };
+
+  const payload = {
+    model,
+    max_tokens: maxTokens,
+    messages,
+    ...(system && { system }),
+    ...(tools && tools.length && { tools }),
+  };
+
   const res = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
     headers: {
-      'x-api-key': apiKey, 'anthropic-version': '2023-06-01',
-      'anthropic-dangerous-direct-browser-calls': 'true', 'content-type': 'application/json',
+      'x-api-key': apiKey,
+      'anthropic-version': '2023-06-01',
+      'anthropic-dangerous-direct-browser-calls': 'true',
+      'content-type': 'application/json',
     },
     body: JSON.stringify(payload),
   });
+
   if (!res.ok) {
     let msg = `HTTP ${res.status}`;
     try { const e = await res.json(); msg = e.error?.message || msg; } catch {}
@@ -986,6 +667,7 @@ async function callClaude({ messages, tools, system, maxTokens = 8192 }) {
   }
   return res.json();
 }
+
 function extractText(resp) {
   return (resp.content || []).filter(b => b.type === 'text').map(b => b.text).join('\n');
 }
@@ -993,25 +675,39 @@ function extractText(resp) {
 // ── Tool-use loop ─────────────────────────────────────────────
 async function runWithTools(initMessages, tools, system) {
   const msgs = [...initMessages];
+
   for (let i = 0; i < 8; i++) {
     const resp = await callClaude({ messages: msgs, tools, system });
-    if (resp.stop_reason !== 'tool_use') return extractText(resp);
+
+    if (resp.stop_reason !== 'tool_use') {
+      return extractText(resp);
+    }
+
     msgs.push({ role: 'assistant', content: resp.content });
+
     const results = [];
     for (const blk of resp.content) {
       if (blk.type !== 'tool_use') continue;
-      let content = blk.name === 'web_search' ? await execSearch(blk.input.query) : '';
+
+      let content = '';
+      if (blk.name === 'web_search') {
+        content = await execSearch(blk.input.query);
+      }
+
       results.push({ type: 'tool_result', tool_use_id: blk.id, content: content || 'No results.' });
     }
     msgs.push({ role: 'user', content: results });
   }
-  return extractText(await callClaude({ messages: msgs, system }));
+
+  const fallback = await callClaude({ messages: msgs, system });
+  return extractText(fallback);
 }
 
-// ── Web search ────────────────────────────────────────────────
+// ── Web search via Serper.dev (optional) ─────────────────────
 async function execSearch(query) {
   const serperKey = document.getElementById('serper-in').value.trim()
-    || localStorage.getItem('cc_serper') || '';
+    || localStorage.getItem('contentcraft_serper') || '';
+
   if (serperKey) {
     try {
       const res = await fetch('https://google.serper.dev/search', {
@@ -1020,16 +716,21 @@ async function execSearch(query) {
         body: JSON.stringify({ q: query, gl: 'us', hl: 'es', num: 8 }),
       });
       if (res.ok) {
-        const d = await res.json();
+        const data = await res.json();
         const lines = [];
-        if (d.answerBox?.snippet) lines.push(`Respuesta: ${d.answerBox.snippet}`);
-        (d.organic || []).slice(0, 6).forEach(r => lines.push(`• ${r.title}\n  ${r.snippet || ''}\n  ${r.link}`));
+        if (data.answerBox?.snippet) lines.push(`Respuesta: ${data.answerBox.snippet}`);
+        (data.organic || []).slice(0, 6).forEach(r => {
+          lines.push(`• ${r.title}\n  ${r.snippet || ''}\n  ${r.link}`);
+        });
         if (lines.length) return lines.join('\n\n');
       }
     } catch {}
   }
+
   try {
-    const r = await fetch(`https://api.duckduckgo.com/?q=${encodeURIComponent(query)}&format=json&no_html=1&skip_disambig=1`);
+    const r = await fetch(
+      `https://api.duckduckgo.com/?q=${encodeURIComponent(query)}&format=json&no_html=1&skip_disambig=1`,
+    );
     if (r.ok) {
       const d = await r.json();
       const parts = [];
@@ -1038,14 +739,20 @@ async function execSearch(query) {
       if (parts.length) return parts.join('\n');
     }
   } catch {}
-  return `Búsqueda: "${query}" — sin resultados en tiempo real. Usando conocimiento del modelo.`;
+
+  return `Búsqueda: "${query}" — sin resultados en tiempo real disponibles. Usando conocimiento del modelo.`;
 }
 
-// ── Research ──────────────────────────────────────────────────
-async function doResearch(topic, days, direction, lang, profileContext) {
-  const dirText = direction === 'past' ? `los últimos ${days} días` : `los próximos ${days} días`;
-  const today = new Date().toLocaleDateString('es-ES', { year:'numeric', month:'long', day:'numeric' });
-  const system = `Eres un investigador y analista de contenido experto. La fecha de hoy es ${today}.${profileContext ? '\n\n' + profileContext : ''} Proporciona información estructurada, concreta y útil para crear contenido de alto impacto.`;
+// ── Research phase ────────────────────────────────────────────
+async function doResearch(topic, days, direction, lang) {
+  const dirText = direction === 'past'
+    ? `los últimos ${days} días`
+    : `los próximos ${days} días`;
+
+  const today = new Date().toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' });
+
+  const system = `Eres un investigador y analista de contenido experto. La fecha de hoy es ${today}. Proporciona información estructurada, concreta y útil para crear contenido de alto impacto.`;
+
   const prompt = `Investiga el siguiente tema para crear contenido: "${topic}"
 
 Enfoque: ${direction === 'past' ? `¿Qué ha pasado en ${dirText}?` : `¿Qué está previsto o pasará en ${dirText}?`}
@@ -1062,10 +769,10 @@ Entrega un informe con estas secciones:
 3-5 tendencias o patrones relevantes para este tema ahora.
 
 ## DATOS Y CIFRAS DESTACADOS
-Estadísticas, porcentajes, nombres clave, citas o números concretos.
+Estadísticas, porcentajes, nombres clave, citas o números concretos que den autoridad al contenido.
 
 ## ÁNGULOS ÚNICOS
-3-4 perspectivas o ángulos poco explorados.
+3-4 perspectivas o ángulos poco explorados que diferencien el contenido.
 
 ## AUDIENCIA Y MOTIVACIONES
 Quiénes son los interesados en este tema y qué les mueve.
@@ -1077,93 +784,107 @@ Idioma de respuesta: ${lang}`;
 
   const webSearchTool = {
     name: 'web_search',
-    description: 'Busca en internet para obtener noticias y datos actuales.',
-    input_schema: { type: 'object', properties: { query: { type: 'string' } }, required: ['query'] },
+    description: 'Busca en internet para obtener noticias y datos actuales sobre el tema.',
+    input_schema: {
+      type: 'object',
+      properties: { query: { type: 'string', description: 'La consulta de búsqueda' } },
+      required: ['query'],
+    },
   };
+
   return runWithTools([{ role: 'user', content: prompt }], [webSearchTool], system);
 }
 
-// ── Content generation ────────────────────────────────────────
+// ── Content generation phase ──────────────────────────────────
 const PLATFORM_PROMPTS = {
   blog: `<platform id="blog">
 Genera un artículo de blog completo:
-- TÍTULO SEO (máx. 65 caracteres)
+- TÍTULO SEO (máx. 65 caracteres, con keyword principal)
 - META DESCRIPCIÓN (150-160 caracteres con CTA)
 - INTRODUCCIÓN (hook potente, 2-3 párrafos)
-- CUERPO (5-6 secciones con subtítulos H2, datos de la investigación)
+- CUERPO (5-6 secciones con subtítulos H2, ejemplos, datos de la investigación)
 - CONCLUSIÓN + CTA claro
 - TAGS SEO (8-10 tags)
 Extensión: 900-1200 palabras
 </platform>`,
+
   instagram: `<platform id="instagram">
 Genera:
-- CONCEPTO VISUAL: Descripción del arte para el post/carrusel
-- CAPTION: Hook en 1ª línea + storytelling + CTA + emojis estratégicos
+- CONCEPTO VISUAL: Descripción detallada del arte para el post/carrusel (colores, composición, estilo, tipografía)
+- CAPTION: Hook impactante en 1ª línea + cuerpo con storytelling + CTA + emojis estratégicos
 - 30 HASHTAGS: mix de populares, nicho y de marca
-- 3 IDEAS DE STORIES: secuencia slide 1 → 2 → 3
+- 3 IDEAS DE STORIES: secuencia slide 1 → 2 → 3 con texto y visual de cada slide
 - CONCEPTO REEL: gancho primeros 3 s, estructura, audio sugerido
-- PREGUNTA DE INTERACCIÓN
+- PREGUNTA DE INTERACCIÓN para maximizar comentarios
 </platform>`,
+
   linkedin: `<platform id="linkedin">
 Genera:
-- HOOK (2 líneas antes del "ver más", máx. 150 caracteres)
-- CUERPO (insights de valor, saltos de línea, storytelling)
+- HOOK (primeras 2 líneas antes del "ver más", máx. 150 caracteres, genera curiosidad)
+- CUERPO (insights de valor, saltos de línea para escaneabilidad, storytelling o datos)
 - 3-5 PUNTOS CLAVE en bullet points
-- CTA específico para LinkedIn
+- CTA específico para LinkedIn (comentar, conectar, guardar)
 - 5 HASHTAGS LinkedIn
-- IDEA DE ENCUESTA con 4 opciones
+- IDEA DE ENCUESTA LinkedIn con 4 opciones de respuesta
 </platform>`,
+
   facebook: `<platform id="facebook">
 Genera:
-- POST PRINCIPAL (texto conversacional, 150-300 palabras)
-- DESCRIPCIÓN VISUAL
-- PREGUNTA DE ENGAGEMENT
+- POST PRINCIPAL (texto conversacional, óptimo para alcance orgánico, 150-300 palabras)
+- DESCRIPCIÓN VISUAL (qué imagen o video acompañar y por qué)
+- PREGUNTA DE ENGAGEMENT (para generar comentarios y debate)
 - CTA claro
-- VARIANTE PARA GRUPOS
+- VARIANTE PARA GRUPOS (versión adaptada para compartir en grupos relevantes)
 </platform>`,
+
   youtube: `<platform id="youtube">
 Genera:
-- TÍTULO A (emocional/curiosidad, máx. 70 caracteres)
-- TÍTULO B (SEO/informativo, máx. 70 caracteres)
-- DESCRIPCIÓN COMPLETA (hook, índice con timestamps, CTA, hashtags)
-- 18 TAGS
-- THUMBNAIL CONCEPT (fondo, texto overlay, paleta)
-- GUIÓN: intro hook (0-30 s), 5-7 secciones, outro con CTA
-- POST DE COMUNIDAD para el día del lanzamiento
+- TÍTULO A (versión emocional/curiosidad, máx. 70 caracteres)
+- TÍTULO B (versión SEO/informativa, máx. 70 caracteres)
+- DESCRIPCIÓN COMPLETA (párrafo de hook, índice con timestamps aproximados, CTA a suscribirse, hashtags al final)
+- 18 TAGS para búsqueda
+- THUMBNAIL CONCEPT (fondo, texto overlay, imagen/elemento visual, paleta de colores, emoción que transmite)
+- GUIÓN / PUNTOS DEL VIDEO: intro con hook (0-30 s), 5-7 secciones principales, outro con CTA
+- POST DE COMUNIDAD para publicar al lanzar el video
 </platform>`,
+
   twitter: `<platform id="twitter">
 Genera:
-- TWEET ÚNICO (máx. 280 caracteres)
-- HILO COMPLETO (10-12 tweets numerados)
-- TWEET DE ENGAGEMENT (pregunta o encuesta)
-- TWEET "OPINIÓN CALIENTE"
+- TWEET ÚNICO (máx. 280 caracteres, punch directo)
+- HILO COMPLETO (10-12 tweets numerados 1/12, 2/12... que cuenten una historia o enseñen algo)
+- TWEET DE ENGAGEMENT (pregunta o encuesta para interacción)
+- TWEET "OPINIÓN CALIENTE" (perspectiva provocadora que genere debate respetuoso)
 </platform>`,
+
   tiktok: `<platform id="tiktok">
 Genera:
-- CONCEPTO DE VIDEO (idea, duración, formato)
-- HOOK PRIMEROS 3 SEGUNDOS
-- ESTRUCTURA DEL VIDEO (puntos con timing)
-- TEXTO OVERLAY en pantalla
-- AUDIO SUGERIDO
+- CONCEPTO DE VIDEO (idea principal, duración recomendada, formato: tutorial/story/trend)
+- HOOK PRIMEROS 3 SEGUNDOS (qué decir/mostrar para retener)
+- ESTRUCTURA DEL VIDEO (puntos clave con timing aproximado)
+- TEXTO OVERLAY (textos en pantalla a lo largo del video)
+- AUDIO SUGERIDO (tipo de música o sonido tendencia)
 - CAPTION + 7 HASHTAGS TikTok
-- IDEA DE DUETO o RESPUESTA
+- IDEA DE DUETO o RESPUESTA que invite a la comunidad
 </platform>`,
+
   newsletter: `<platform id="newsletter">
 Genera:
-- ASUNTO PRINCIPAL (máx. 50 caracteres)
+- ASUNTO PRINCIPAL (máx. 50 caracteres, garantiza apertura)
 - ASUNTO A/B (variante para testing)
-- PRE-ENCABEZADO (40-90 caracteres)
-- INTRODUCCIÓN PERSONALIZADA
-- CUERPO PRINCIPAL (secciones claras, valor concreto)
-- SECCIÓN DE RECURSOS (3-5 links)
-- CTA PRINCIPAL
+- PRE-ENCABEZADO (40-90 caracteres, texto de vista previa)
+- INTRODUCCIÓN PERSONALIZADA (saludo + gancho)
+- CUERPO PRINCIPAL (secciones claras, valor concreto, datos de la investigación)
+- SECCIÓN DE RECURSOS (3-5 links o recursos adicionales)
+- CTA PRINCIPAL con texto del botón/link
 - CIERRE + PD con tease del próximo envío
 </platform>`,
 };
 
-async function generateContent(topic, research, platforms, tone, lang, profileContext) {
+async function generateContent(topic, research, platforms, tone, lang) {
   const platformBlocks = platforms.map(p => PLATFORM_PROMPTS[p] || '').filter(Boolean).join('\n\n');
-  const system = `Eres un experto en marketing de contenidos con 10+ años de experiencia creando contenido viral en ${lang}.${profileContext ? '\n\n' + profileContext : ''} Produces contenido auténtico, específico y accionable.`;
+
+  const system = `Eres un experto en marketing de contenidos con 10+ años de experiencia creando contenido viral en ${lang}. Conoces los algoritmos y la psicología del usuario de cada plataforma. Produces contenido auténtico, específico y accionable.`;
+
   const prompt = `Basándote en esta investigación, genera contenido en ${lang} con tono ${tone}:
 
 ## INVESTIGACIÓN
@@ -1172,12 +893,13 @@ ${research}
 ## TEMA: ${topic}
 
 ## INSTRUCCIONES
-Usa EXACTAMENTE el formato XML indicado. El contenido debe:
-- Usar datos concretos de la investigación
+
+Usa EXACTAMENTE el formato XML indicado para cada plataforma. El contenido debe:
+- Usar datos y ejemplos concretos de la investigación
 - Estar 100% optimizado para cada plataforma
-- Sonar auténtico al perfil/marca
-- Incluir emojis donde corresponda
-- Respetar el tono "${tone}"
+- Sonar auténtico, no genérico
+- Incluir emojis donde corresponda por plataforma
+- Respetar el tono "${tone}" de manera consistente
 
 ${platformBlocks}`;
 
@@ -1185,7 +907,7 @@ ${platformBlocks}`;
   return extractText(resp);
 }
 
-// ── Parse sections ────────────────────────────────────────────
+// ── Parse platform sections ───────────────────────────────────
 function parsePlatforms(fullText, platforms) {
   const out = {};
   for (const p of platforms) {
@@ -1212,17 +934,23 @@ function renderResults(research, sections, platforms) {
   document.getElementById('res-box').textContent = research;
   document.getElementById('res-meta').textContent =
     new Date().toLocaleDateString('es-ES', { day:'2-digit', month:'short', year:'numeric' });
+
   const tabsBar = document.getElementById('tabs-bar');
   const tabsContent = document.getElementById('tabs-content');
-  tabsBar.innerHTML = ''; tabsContent.innerHTML = '';
+  tabsBar.innerHTML = '';
+  tabsContent.innerHTML = '';
+
   platforms.forEach((p, i) => {
     const cfg = PLAT[p] || { label: p, icon: '📄' };
+    const content = sections[p] || '';
+
     const btn = document.createElement('button');
     btn.className = `tab-btn${i === 0 ? ' active' : ''}`;
     btn.id = `tab-${p}`;
     btn.innerHTML = `${cfg.icon} ${cfg.label}`;
     btn.onclick = () => switchTab(p, platforms);
     tabsBar.appendChild(btn);
+
     const textId = `txt-${p}`;
     const sec = document.createElement('div');
     sec.className = `plt-section${i === 0 ? ' active' : ''}`;
@@ -1233,21 +961,24 @@ function renderResults(research, sections, platforms) {
           ${cfg.icon} ${cfg.label}
           <button class="copy-btn" onclick="copyText('${textId}',this)">⎘ Copiar</button>
         </div>
-        <div class="cblock-body" id="${textId}">${escHtml(sections[p] || '')}</div>
+        <div class="cblock-body" id="${textId}">${escHtml(content)}</div>
       </div>`;
     tabsContent.appendChild(sec);
   });
+
   document.getElementById('results-card').classList.remove('hidden');
   document.getElementById('results-card').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
+
 function switchTab(active, platforms) {
   platforms.forEach(p => {
     document.getElementById(`tab-${p}`)?.classList.toggle('active', p === active);
     document.getElementById(`sec-${p}`)?.classList.toggle('active', p === active);
   });
 }
+
 function escHtml(s) {
-  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
 
 // ── Step UI ───────────────────────────────────────────────────
@@ -1257,32 +988,28 @@ function setStep(id, state, detail) {
   step.className = `step ${state}`;
   if (state === 'active') {
     num.innerHTML = `<div class="spin"></div>`;
-    const d = document.getElementById(`s-${id}-detail`);
-    if (d && detail) d.textContent = detail;
+    if (detail) {
+      const d = document.getElementById(`s-${id}-detail`);
+      if (d) d.textContent = detail;
+    }
   } else if (state === 'done') {
     num.textContent = '✓';
   }
 }
+
 function showError(msg) {
   const el = document.getElementById('err-banner');
-  el.textContent = msg; el.classList.remove('hidden');
-}
-
-// ── Build profile context string ──────────────────────────────
-function buildProfileContext() {
-  const p = getActiveProfile();
-  if (!p) return '';
-  const brand = getBrand(p.id);
-  let ctx = `Estás creando contenido para la marca/perfil: ${p.name} (${p.emoji})\nDescripción: ${p.description}`;
-  if (brand) ctx += `\n\nManual de marca:\n${brand.slice(0, 4000)}`;
-  return ctx;
+  el.textContent = msg;
+  el.classList.remove('hidden');
 }
 
 // ── Main flow ─────────────────────────────────────────────────
 async function startGeneration() {
   if (!getKey()) { openKeyModal(); toast('⚠️ Configura tu API Key primero'); return; }
+
   const topic = document.getElementById('topic-in').value.trim();
   if (!topic) { toast('⚠️ Ingresa un tema'); document.getElementById('topic-in').focus(); return; }
+
   const platforms = [...document.querySelectorAll('.plat-cb:checked')].map(el => el.value);
   if (!platforms.length) { toast('⚠️ Selecciona al menos una plataforma'); return; }
 
@@ -1290,10 +1017,9 @@ async function startGeneration() {
   const direction = document.querySelector('input[name=dir]:checked').value;
   const lang      = document.getElementById('lang-sel').value;
   const tone      = document.querySelector('input[name=tone]:checked').value;
-  const profileCtx = buildProfileContext();
 
   const serperKey = document.getElementById('serper-in').value.trim();
-  if (serperKey) localStorage.setItem('cc_serper', serperKey);
+  if (serperKey) localStorage.setItem('contentcraft_serper', serperKey);
 
   document.getElementById('gen-btn').disabled = true;
   document.getElementById('gen-btn').innerHTML = '<div class="spin"></div> Procesando...';
@@ -1302,22 +1028,34 @@ async function startGeneration() {
   document.getElementById('err-banner').classList.add('hidden');
 
   setStep('research', 'active',
-    serperKey ? 'Realizando búsquedas web en tiempo real...' : 'Analizando conocimiento del modelo...');
+    serperKey
+      ? 'Realizando búsquedas web en tiempo real...'
+      : 'Analizando conocimiento del modelo sobre el tema...');
 
   let research = '';
   try {
-    research = await doResearch(topic, days, direction, lang, profileCtx);
+    research = await doResearch(topic, days, direction, lang);
     setStep('research', 'done');
-  } catch (e) { showError(`Error en la investigación: ${e.message}`); resetBtn(); return; }
+  } catch (e) {
+    showError(`Error en la investigación: ${e.message}`);
+    resetBtn();
+    return;
+  }
 
   setStep('generate', 'active');
+
   let generated = '';
   try {
-    generated = await generateContent(topic, research, platforms, tone, lang, profileCtx);
+    generated = await generateContent(topic, research, platforms, tone, lang);
     setStep('generate', 'done');
-  } catch (e) { showError(`Error generando contenido: ${e.message}`); resetBtn(); return; }
+  } catch (e) {
+    showError(`Error generando contenido: ${e.message}`);
+    resetBtn();
+    return;
+  }
 
-  renderResults(research, parsePlatforms(generated, platforms), platforms);
+  const sections = parsePlatforms(generated, platforms);
+  renderResults(research, sections, platforms);
   toast('✓ Contenido generado exitosamente');
   resetBtn();
 }
@@ -1329,12 +1067,6 @@ function resetBtn() {
 
 // ── Init ──────────────────────────────────────────────────────
 loadKey().then(() => syncKeyUI());
-initProfiles();
-renderProfiles();
-if (_activeProfileId) {
-  applyProfileToForm();
-  renderBrandSection();
-}
 </script>
 </body>
 </html>
