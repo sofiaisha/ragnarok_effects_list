@@ -153,9 +153,9 @@ fn claude_cli_generate(prompt: String) -> Result<String, String> {
 
     let mut child = {
         #[cfg(target_os = "windows")]
-        { Command::new("cmd").args(["/C", "claude", "-p"]) }
+        { Command::new("cmd").args(["/C", "claude", "-p", "--allowedTools", "WebSearch"]) }
         #[cfg(not(target_os = "windows"))]
-        { let mut c = Command::new(&path); c.arg("-p"); c }
+        { let mut c = Command::new(&path); c.args(["-p", "--allowedTools", "WebSearch"]); c }
     }
     .stdin(Stdio::piped())
     .stdout(Stdio::piped())
