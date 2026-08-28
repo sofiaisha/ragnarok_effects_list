@@ -1,13 +1,11 @@
 use keyring_core::{set_default_store, Entry, Error as KeyringError};
 use serde::Serialize;
-use std::process::Command;
+use std::io::Write;
+use std::process::{Command, Stdio};
 use std::sync::LazyLock;
 
 const SERVICE: &str = "com.contentcraft.app";
 
-// One-time platform store registration.
-// On Windows the default CRED_PERSIST_ENTERPRISE fails on local (non-domain) accounts;
-// we need CRED_PERSIST_LOCAL_MACHINE set via the "persistence" modifier.
 static STORE_INIT: LazyLock<Result<(), String>> = LazyLock::new(|| {
     #[cfg(target_os = "windows")]
     let store = windows_native_keyring_store::Store::new().map_err(|e| e.to_string())?;
@@ -29,7 +27,6 @@ fn entry(provider: &str) -> Result<Entry, String> {
     {
         use std::collections::HashMap;
         let mut modifiers = HashMap::new();
-        // Force local persistence — required on Windows local accounts (non-domain).
         modifiers.insert("persistence", "Local");
         return Entry::new_with_modifiers(SERVICE, provider, &modifiers)
             .map_err(|e| e.to_string());
@@ -38,7 +35,7 @@ fn entry(provider: &str) -> Result<Entry, String> {
     Entry::new(SERVICE, provider).map_err(|e| e.to_string())
 }
 
-// ── Keychain commands ─────────────────────────────────────────────────────
+// ── Keychain commands ──────────────────────────────────────────────────────
 
 #[tauri::command]
 fn set_api_key(provider: String, key: String) -> Result<(), String> {
@@ -63,7 +60,28 @@ fn delete_api_key(provider: String) -> Result<(), String> {
     }
 }
 
-// ── Claude Code detection (same approach as Lumia Career) ─────────────────
+fn read_from_service(service: &str, provider: &str) -> Option<String> {
+    ensure_store().ok()?;
+    #[cfg(target_os = "windows")]
+    {
+        use std::collections::HashMap;
+        let mut modifiers = HashMap::new();
+        modifiers.insert("persistence", "Local");
+        let e = Entry::new_with_modifiers(service, provider, &modifiers).ok()?;
+        let k = e.get_password().ok()?;
+        if k.is_empty() { return None; }
+        return Some(k);
+    }
+    #[cfg(not(target_os = "windows"))]
+    {
+        let e = Entry::new(service, provider).ok()?;
+        let k = e.get_password().ok()?;
+        if k.is_empty() { return None; }
+        Some(k)
+    }
+}
+
+// ── Claude Code CLI ────────────────────────────────────────────────────────
 
 #[derive(Serialize)]
 pub struct ClaudeCliStatus {
@@ -71,70 +89,116 @@ pub struct ClaudeCliStatus {
     pub version: Option<String>,
 }
 
-/// Detects whether the `claude` CLI is available.
-/// On Windows, npm shims are .cmd files — try cmd /C, then PowerShell, then known paths.
-#[tauri::command]
-fn detect_claude_cli() -> ClaudeCliStatus {
+/// Locate the `claude` executable using `where` (Windows) or `which` (Unix).
+/// Returns the full path, e.g. C:\Users\...\AppData\Roaming\npm\claude.cmd
+fn find_claude() -> Option<String> {
     #[cfg(target_os = "windows")]
     {
-        // Try cmd /C first (works when npm bin dir is in system/user PATH)
-        let attempts: &[&[&str]] = &[
-            &["cmd", "/C", "claude", "--version"],
-            &["powershell", "-Command", "claude --version"],
-        ];
-        for args in attempts {
-            if let Ok(o) = Command::new(args[0]).args(&args[1..]).output() {
-                if o.status.success() {
-                    return ClaudeCliStatus {
-                        found: true,
-                        version: Some(String::from_utf8_lossy(&o.stdout).trim().to_string()),
-                    };
+        // `where claude` searches PATH + PATHEXT (finds .cmd shims)
+        if let Ok(out) = Command::new("where").arg("claude").output() {
+            if out.status.success() {
+                let s = String::from_utf8_lossy(&out.stdout);
+                if let Some(line) = s.lines().next() {
+                    let p = line.trim().to_string();
+                    if !p.is_empty() { return Some(p); }
                 }
             }
         }
-        // Try known npm global locations directly
-        let appdata = std::env::var("APPDATA").unwrap_or_default();
-        let candidates = [
-            format!(r"{appdata}\npm\claude.cmd"),
-            format!(r"{}\AppData\Roaming\npm\claude.cmd",
-                    std::env::var("USERPROFILE").unwrap_or_default()),
-        ];
-        for path in &candidates {
-            if std::path::Path::new(path).exists() {
-                return ClaudeCliStatus { found: true, version: None };
-            }
+        // Fallback: known npm global install location
+        if let Ok(appdata) = std::env::var("APPDATA") {
+            let p = format!(r"{appdata}\npm\claude.cmd");
+            if std::path::Path::new(&p).exists() { return Some(p); }
         }
-        ClaudeCliStatus { found: false, version: None }
+        if let Ok(profile) = std::env::var("USERPROFILE") {
+            let p = format!(r"{profile}\AppData\Roaming\npm\claude.cmd");
+            if std::path::Path::new(&p).exists() { return Some(p); }
+        }
+        None
     }
     #[cfg(not(target_os = "windows"))]
-    match Command::new("claude").arg("--version").output() {
-        Ok(o) if o.status.success() => ClaudeCliStatus {
-            found: true,
-            version: Some(String::from_utf8_lossy(&o.stdout).trim().to_string()),
-        },
-        _ => ClaudeCliStatus { found: false, version: None },
+    {
+        if let Ok(out) = Command::new("which").arg("claude").output() {
+            if out.status.success() {
+                let s = String::from_utf8_lossy(&out.stdout);
+                let p = s.trim().to_string();
+                if !p.is_empty() { return Some(p); }
+            }
+        }
+        None
     }
 }
 
-// ── Resolve API key from all sources ─────────────────────────────────────
-//
-// Priority: (1) ContentCraft keychain, (2) ANTHROPIC_API_KEY process env,
-// (3) Windows registry user env vars (GUI apps don't inherit shell env vars),
-// (4) Claude Code credentials file (~/.claude/.credentials.json — OAuth token,
-//     not usable as Anthropic API key, so skipped),
-// (5) Claude Code settings.json apiKey field.
+#[tauri::command]
+fn detect_claude_cli() -> ClaudeCliStatus {
+    let Some(path) = find_claude() else {
+        return ClaudeCliStatus { found: false, version: None };
+    };
+    // Try to get version (optional — detection succeeds even without it)
+    let version = {
+        #[cfg(target_os = "windows")]
+        { Command::new("cmd").args(["/C", &path, "--version"]).output() }
+        #[cfg(not(target_os = "windows"))]
+        { Command::new(&path).arg("--version").output() }
+    }
+    .ok()
+    .filter(|o| o.status.success())
+    .map(|o| String::from_utf8_lossy(&o.stdout).trim().to_string());
+
+    ClaudeCliStatus { found: true, version }
+}
+
+/// Run a prompt through `claude -p` headless mode.
+///
+/// Rules (per spec):
+/// - Prompt via stdin — NEVER as CLI arg (Windows cmd.exe truncates at ~8 191 chars)
+/// - On Windows: cmd /C <full-path-to-claude.cmd> -p   (resolves .cmd shim correctly)
+/// - stdin writing runs in a thread to avoid pipe-buffer deadlock on large prompts
+/// - stderr returned verbatim so actionable messages ("Not logged in") reach the user
+#[tauri::command]
+fn claude_cli_generate(prompt: String) -> Result<String, String> {
+    let path = find_claude()
+        .ok_or_else(|| "claude CLI no encontrado. Instala Claude Code y corre `claude` una vez para iniciar sesión.".to_string())?;
+
+    let mut child = {
+        #[cfg(target_os = "windows")]
+        { Command::new("cmd").args(["/C", &path, "-p"]) }
+        #[cfg(not(target_os = "windows"))]
+        { let mut c = Command::new(&path); c.arg("-p"); c }
+    }
+    .stdin(Stdio::piped())
+    .stdout(Stdio::piped())
+    .stderr(Stdio::piped())
+    .spawn()
+    .map_err(|e| format!("No se pudo iniciar claude: {e}"))?;
+
+    // Write prompt in a thread — avoids deadlock when prompt > OS pipe buffer (~64 KB)
+    let prompt_bytes = prompt.into_bytes();
+    let mut stdin = child.stdin.take().ok_or("stdin no disponible")?;
+    let writer = std::thread::spawn(move || stdin.write_all(&prompt_bytes));
+
+    let output = child.wait_with_output().map_err(|e| e.to_string())?;
+    let _ = writer.join(); // writer may have already exited if process ended early
+
+    if output.status.success() {
+        Ok(String::from_utf8_lossy(&output.stdout).to_string())
+    } else {
+        // Return stderr verbatim — may say "Not logged in — Please run /login"
+        let stderr = String::from_utf8_lossy(&output.stderr).to_string();
+        let stdout = String::from_utf8_lossy(&output.stdout).to_string();
+        Err(if !stderr.is_empty() { stderr }
+            else if !stdout.is_empty() { stdout }
+            else { format!("claude falló (código {})", output.status.code().unwrap_or(-1)) })
+    }
+}
+
+// ── Resolve API key ────────────────────────────────────────────────────────
 
 #[cfg(target_os = "windows")]
 fn read_registry_env(name: &str) -> Option<String> {
-    // HKCU\Environment holds per-user env vars set via System Properties.
-    // GUI apps launched outside a shell don't inherit these from the process env.
-    use std::process::Command;
-    let output = Command::new("reg")
+    let out = Command::new("reg")
         .args(["query", r"HKCU\Environment", "/v", name])
-        .output()
-        .ok()?;
-    let text = String::from_utf8_lossy(&output.stdout);
-    // reg query output: "    NAME    REG_SZ    VALUE"
+        .output().ok()?;
+    let text = String::from_utf8_lossy(&out.stdout);
     for line in text.lines() {
         let parts: Vec<&str> = line.splitn(3, "REG_SZ").collect();
         if parts.len() == 2 {
@@ -147,103 +211,39 @@ fn read_registry_env(name: &str) -> Option<String> {
 
 fn read_claude_settings_key() -> Option<String> {
     let home = std::env::var("USERPROFILE")
-        .or_else(|_| std::env::var("HOME"))
-        .ok()?;
-    let path = std::path::Path::new(&home).join(".claude").join("settings.json");
-    let contents = std::fs::read_to_string(path).ok()?;
+        .or_else(|_| std::env::var("HOME")).ok()?;
+    let contents = std::fs::read_to_string(
+        std::path::Path::new(&home).join(".claude").join("settings.json")
+    ).ok()?;
     let v: serde_json::Value = serde_json::from_str(&contents).ok()?;
-    let key = v.get("apiKey")?.as_str()?.to_string();
-    if key.is_empty() { None } else { Some(key) }
-}
-
-/// Run a prompt through `claude -p` (headless mode). Uses Claude Code's own auth.
-#[tauri::command]
-fn claude_cli_generate(prompt: String) -> Result<String, String> {
-    use std::io::Write;
-
-    let spawn_result = if cfg!(windows) {
-        // Try cmd /C first, then powershell
-        Command::new("cmd")
-            .args(["/C", "claude", "-p"])
-            .stdin(std::process::Stdio::piped())
-            .stdout(std::process::Stdio::piped())
-            .stderr(std::process::Stdio::piped())
-            .spawn()
-            .or_else(|_| {
-                Command::new("powershell")
-                    .args(["-Command", "claude -p"])
-                    .stdin(std::process::Stdio::piped())
-                    .stdout(std::process::Stdio::piped())
-                    .stderr(std::process::Stdio::piped())
-                    .spawn()
-            })
-    } else {
-        Command::new("claude")
-            .arg("-p")
-            .stdin(std::process::Stdio::piped())
-            .stdout(std::process::Stdio::piped())
-            .stderr(std::process::Stdio::piped())
-            .spawn()
-    };
-
-    let mut child = spawn_result.map_err(|e| format!("No se pudo iniciar claude: {e}"))?;
-    if let Some(mut stdin) = child.stdin.take() {
-        stdin.write_all(prompt.as_bytes()).map_err(|e| e.to_string())?;
-    }
-    let output = child.wait_with_output().map_err(|e| e.to_string())?;
-    if output.status.success() {
-        Ok(String::from_utf8_lossy(&output.stdout).to_string())
-    } else {
-        let err = String::from_utf8_lossy(&output.stderr).to_string();
-        Err(if err.is_empty() { "claude CLI sin respuesta".into() } else { err })
-    }
+    let k = v.get("apiKey")?.as_str()?.to_string();
+    if k.is_empty() { None } else { Some(k) }
 }
 
 #[tauri::command]
 fn resolve_api_key() -> Option<String> {
-    // 1. ContentCraft's own keychain entry
+    // 1. ContentCraft keychain
     if let Ok(Some(k)) = get_api_key("anthropic".into()) {
         if !k.is_empty() { return Some(k); }
     }
-    // 2. Lumia Career's keychain entry — user may have saved key there already
+    // 2. Lumia Career keychain (user may already have key saved there)
     if let Some(k) = read_from_service("com.lumiacloud.lumiacareer", "anthropic") {
         return Some(k);
     }
-    // 3. Process environment variable
+    // 3. Process env var
     if let Ok(k) = std::env::var("ANTHROPIC_API_KEY") {
         if !k.is_empty() { return Some(k); }
     }
-    // 4. Windows registry user environment (not inherited by GUI apps)
+    // 4. Windows registry user env (GUI apps don't inherit shell env)
     #[cfg(target_os = "windows")]
     if let Some(k) = read_registry_env("ANTHROPIC_API_KEY") {
         return Some(k);
     }
-    // 5. Claude Code settings.json apiKey field
+    // 5. Claude Code settings.json
     if let Some(k) = read_claude_settings_key() {
         return Some(k);
     }
     None
-}
-
-fn read_from_service(service: &str, provider: &str) -> Option<String> {
-    ensure_store().ok()?;
-    #[cfg(target_os = "windows")]
-    {
-        use std::collections::HashMap;
-        let mut modifiers = HashMap::new();
-        modifiers.insert("persistence", "Local");
-        let entry = Entry::new_with_modifiers(service, provider, &modifiers).ok()?;
-        let k = entry.get_password().ok()?;
-        if k.is_empty() { return None; }
-        return Some(k);
-    }
-    #[cfg(not(target_os = "windows"))]
-    {
-        let entry = Entry::new(service, provider).ok()?;
-        let k = entry.get_password().ok()?;
-        if k.is_empty() { return None; }
-        Some(k)
-    }
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]

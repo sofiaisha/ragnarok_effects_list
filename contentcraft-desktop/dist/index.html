@@ -920,7 +920,16 @@ async function callClaudeCli(systemPrompt, userPrompt) {
   const combined = systemPrompt
     ? `<system>\n${systemPrompt}\n</system>\n\n${userPrompt}`
     : userPrompt;
-  return invoke('claude_cli_generate', { prompt: combined });
+  try {
+    return await invoke('claude_cli_generate', { prompt: combined });
+  } catch (err) {
+    // Propagate stderr verbatim — may say "Not logged in — Please run /login"
+    const msg = String(err);
+    if (msg.includes('login') || msg.includes('auth') || msg.includes('session')) {
+      throw new Error(`Claude Code no está autenticado. Abre una terminal y corre:\n  claude\nLuego escribe /login`);
+    }
+    throw new Error(msg);
+  }
 }
 
 // ── Claude API ────────────────────────────────────────────────────────────
