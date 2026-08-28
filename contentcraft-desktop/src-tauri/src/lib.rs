@@ -1,11 +1,13 @@
 use keyring_core::{set_default_store, Entry, Error as KeyringError};
+use serde::Serialize;
+use std::process::Command;
 use std::sync::LazyLock;
 
 const SERVICE: &str = "com.contentcraft.app";
 
-// One-time platform store registration — mirrors Lumia Career's approach exactly.
+// One-time platform store registration.
 // On Windows the default CRED_PERSIST_ENTERPRISE fails on local (non-domain) accounts;
-// we need CRED_PERSIST_LOCAL_MACHINE, set via the "persistence" modifier below.
+// we need CRED_PERSIST_LOCAL_MACHINE set via the "persistence" modifier.
 static STORE_INIT: LazyLock<Result<(), String>> = LazyLock::new(|| {
     #[cfg(target_os = "windows")]
     let store = windows_native_keyring_store::Store::new().map_err(|e| e.to_string())?;
@@ -28,7 +30,6 @@ fn entry(provider: &str) -> Result<Entry, String> {
         use std::collections::HashMap;
         let mut modifiers = HashMap::new();
         // Force local persistence — required on Windows local accounts (non-domain).
-        // Without this the credential "saves" but cannot be read back.
         modifiers.insert("persistence", "Local");
         return Entry::new_with_modifiers(SERVICE, provider, &modifiers)
             .map_err(|e| e.to_string());
@@ -37,7 +38,7 @@ fn entry(provider: &str) -> Result<Entry, String> {
     Entry::new(SERVICE, provider).map_err(|e| e.to_string())
 }
 
-// ── Commands ──────────────────────────────────────────────────────────────
+// ── Keychain commands ─────────────────────────────────────────────────────
 
 #[tauri::command]
 fn set_api_key(provider: String, key: String) -> Result<(), String> {
@@ -62,13 +63,92 @@ fn delete_api_key(provider: String) -> Result<(), String> {
     }
 }
 
-/// Returns the first Anthropic key found: keychain → ANTHROPIC_API_KEY env var.
+// ── Claude Code detection (same approach as Lumia Career) ─────────────────
+
+#[derive(Serialize)]
+pub struct ClaudeCliStatus {
+    pub found: bool,
+    pub version: Option<String>,
+}
+
+/// Detects whether the `claude` CLI is available on PATH.
+/// On Windows, npm shims like `claude` are .cmd files — must invoke via `cmd /C`.
+#[tauri::command]
+fn detect_claude_cli() -> ClaudeCliStatus {
+    let output = if cfg!(windows) {
+        Command::new("cmd").args(["/C", "claude", "--version"]).output()
+    } else {
+        Command::new("claude").arg("--version").output()
+    };
+    match output {
+        Ok(o) if o.status.success() => ClaudeCliStatus {
+            found: true,
+            version: Some(String::from_utf8_lossy(&o.stdout).trim().to_string()),
+        },
+        _ => ClaudeCliStatus { found: false, version: None },
+    }
+}
+
+// ── Resolve API key from all sources ─────────────────────────────────────
+//
+// Priority: (1) ContentCraft keychain, (2) ANTHROPIC_API_KEY process env,
+// (3) Windows registry user env vars (GUI apps don't inherit shell env vars),
+// (4) Claude Code credentials file (~/.claude/.credentials.json — OAuth token,
+//     not usable as Anthropic API key, so skipped),
+// (5) Claude Code settings.json apiKey field.
+
+#[cfg(target_os = "windows")]
+fn read_registry_env(name: &str) -> Option<String> {
+    // HKCU\Environment holds per-user env vars set via System Properties.
+    // GUI apps launched outside a shell don't inherit these from the process env.
+    use std::process::Command;
+    let output = Command::new("reg")
+        .args(["query", r"HKCU\Environment", "/v", name])
+        .output()
+        .ok()?;
+    let text = String::from_utf8_lossy(&output.stdout);
+    // reg query output: "    NAME    REG_SZ    VALUE"
+    for line in text.lines() {
+        let parts: Vec<&str> = line.splitn(3, "REG_SZ").collect();
+        if parts.len() == 2 {
+            let val = parts[1].trim().to_string();
+            if !val.is_empty() { return Some(val); }
+        }
+    }
+    None
+}
+
+fn read_claude_settings_key() -> Option<String> {
+    let home = std::env::var("USERPROFILE")
+        .or_else(|_| std::env::var("HOME"))
+        .ok()?;
+    let path = std::path::Path::new(&home).join(".claude").join("settings.json");
+    let contents = std::fs::read_to_string(path).ok()?;
+    let v: serde_json::Value = serde_json::from_str(&contents).ok()?;
+    let key = v.get("apiKey")?.as_str()?.to_string();
+    if key.is_empty() { None } else { Some(key) }
+}
+
 #[tauri::command]
 fn resolve_api_key() -> Option<String> {
-    if let Ok(Some(key)) = get_api_key("anthropic".into()) {
-        if !key.is_empty() { return Some(key); }
+    // 1. ContentCraft's own keychain entry
+    if let Ok(Some(k)) = get_api_key("anthropic".into()) {
+        if !k.is_empty() { return Some(k); }
     }
-    std::env::var("ANTHROPIC_API_KEY").ok().filter(|k| !k.is_empty())
+    // 2. Process environment variable
+    if let Ok(k) = std::env::var("ANTHROPIC_API_KEY") {
+        if !k.is_empty() { return Some(k); }
+    }
+    // 3. Windows registry user environment (not inherited by GUI apps)
+    #[cfg(target_os = "windows")]
+    if let Some(k) = read_registry_env("ANTHROPIC_API_KEY") {
+        return Some(k);
+    }
+    // 4. Claude Code settings.json apiKey field
+    if let Some(k) = read_claude_settings_key() {
+        return Some(k);
+    }
+    None
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
@@ -78,6 +158,7 @@ pub fn run() {
             set_api_key,
             get_api_key,
             delete_api_key,
+            detect_claude_cli,
             resolve_api_key,
         ])
         .run(tauri::generate_context!())

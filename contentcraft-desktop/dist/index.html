@@ -1162,16 +1162,36 @@ renderManual();
 if (_activeBrandId) applyBrandToForm();
 syncKeyUI();
 
-// Auto-detect API key from keychain / ANTHROPIC_API_KEY env var via Tauri
+// Auto-detect API key: keychain → Windows registry env → Claude Code settings
 (async () => {
-  if (getKey()) return; // already have one in localStorage
+  const invoke = window.__TAURI__?.core?.invoke || window.__TAURI_INTERNALS__?.invoke;
+  if (!invoke) return;
+
+  // Show Claude Code status in header
   try {
-    const invoke = (window.__TAURI__?.core?.invoke) ||
-                   (window.__TAURI_INTERNALS__?.invoke);
-    if (!invoke) return;
+    const cli = await invoke('detect_claude_cli');
+    if (cli?.found) {
+      const btn = document.getElementById('key-btn');
+      if (btn) {
+        const badge = document.createElement('span');
+        badge.style.cssText = 'font-size:11px;color:#3fb950;margin-left:4px';
+        badge.textContent = '· Claude Code ✓';
+        badge.id = 'cc-badge';
+        btn.appendChild(badge);
+      }
+    }
+  } catch (_) {}
+
+  // Auto-load key if not already in localStorage
+  if (getKey()) return;
+  try {
     const found = await invoke('resolve_api_key');
-    if (found) { setKey(found); syncKeyUI(); toast('✓ API Key detectada automáticamente'); }
-  } catch (_) { /* not in Tauri or key not found — silently ignore */ }
+    if (found) {
+      setKey(found);
+      syncKeyUI();
+      toast('✓ API Key detectada automáticamente');
+    }
+  } catch (_) {}
 })();
 </script>
 </body>
