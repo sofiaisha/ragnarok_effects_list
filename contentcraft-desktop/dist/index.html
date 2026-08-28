@@ -595,8 +595,14 @@ const LS = {
 };
 
 // ── API Key ───────────────────────────────────────────────────────────────
-function getKey()        { return localStorage.getItem(LS.KEY) || ''; }
-function setKey(k)       { if (k) localStorage.setItem(LS.KEY, k); else localStorage.removeItem(LS.KEY); }
+function getKey()  { return localStorage.getItem(LS.KEY) || ''; }
+function setKey(k) {
+  if (k) localStorage.setItem(LS.KEY, k); else localStorage.removeItem(LS.KEY);
+  // Also persist to OS keychain so the key survives across sessions
+  const invoke = window.__TAURI__?.core?.invoke || window.__TAURI_INTERNALS__?.invoke;
+  if (invoke && k) invoke('set_api_key', { provider: 'anthropic', key: k }).catch(() => {});
+  if (invoke && !k) invoke('delete_api_key', { provider: 'anthropic' }).catch(() => {});
+}
 
 function openKeyModal() {
   document.getElementById('key-in').value = getKey();
