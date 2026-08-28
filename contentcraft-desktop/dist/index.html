@@ -666,7 +666,11 @@
 
 // ── Tauri detection ───────────────────────────────────────────
 const isTauri = () => '__TAURI_INTERNALS__' in window;
-function tauriInvoke(cmd, args) { return window.__TAURI__.core.invoke(cmd, args); }
+function tauriInvoke(cmd, args) {
+  // withGlobalTauri=true exposes window.__TAURI__; fallback to __TAURI_INTERNALS__
+  if (window.__TAURI__?.core?.invoke) return window.__TAURI__.core.invoke(cmd, args);
+  return window.__TAURI_INTERNALS__.invoke(cmd, args);
+}
 
 // ── Cached key ────────────────────────────────────────────────
 let _cachedKey = '';
